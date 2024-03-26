@@ -15,6 +15,15 @@ namespace VampireTheEverythingSheetNoReact.Controllers
 
         public IActionResult Index()
         {
+            //TODO: display the character sheet in its present state
+            string? savedData = "";
+                //SessionExtensions.GetString(HttpContext.Session, "CharacterData");
+
+            ViewData["CharacterModel"] =
+                string.IsNullOrEmpty(savedData)
+                    ? new("testChar")
+                    : Newtonsoft.Json.JsonConvert.DeserializeObject<Character>(savedData);
+
             return View();
         }
 
