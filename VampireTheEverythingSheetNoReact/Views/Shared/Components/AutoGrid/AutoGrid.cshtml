@@ -1,0 +1,35 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@{
+    Trait[] traits = ViewData["Traits"] as Trait[] ?? [];
+    int columns = ViewData["Columns"] as int? ?? 0;
+    int startRow = ViewData["StartRow"] as int? ?? 0;
+
+    //if we have 11 items and 3 rows, then 2 columns will have an extra item - namely the first two
+    int extras = traits.Length % columns;
+
+    //we track the trait index separately because it saves both processing time and programmer headaches in this case
+    int traitIdx = 0;
+
+    for(int col = 0; col < columns; col++)
+    {
+        int colRows = (traits.Length / columns) +
+            (
+                col < extras
+                    ? 1
+                    : 0
+            );
+        for(int row = 0; row < colRows; row++)
+        {
+            int trueRow = row + startRow;
+            int trueCol = col + 1;
+            //TODO: Actual rendering logic for traits
+            //TODO: align-self and justify-self in a class, and with sensible values
+            <text>
+                <div>
+                    @(traits[traitIdx].Name + ": " + Utils.TryGetString(traits[traitIdx].Value ?? ""))
+                </div>
+            </text>
+            traitIdx++;
+        }
+    }
+}

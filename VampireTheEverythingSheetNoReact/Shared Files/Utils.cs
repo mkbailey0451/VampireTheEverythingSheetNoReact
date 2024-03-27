@@ -2,6 +2,8 @@
 {
     public static class Utils
     {
+        public const string ColumnPaddingClass = "p-5";
+
         public static int? TryGetInt(object? input)
         {
             if (input == null || input == DBNull.Value)

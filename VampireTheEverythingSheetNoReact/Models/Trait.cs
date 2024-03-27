@@ -44,11 +44,6 @@ namespace VampireTheEverythingSheetNoReact.Models
         }
 
         /// <summary>
-        /// The Character to whom this Trait belongs.
-        /// </summary>
-        private Character _character;
-
-        /// <summary>
         /// The trait ID of this Trait. Each different Trait has a unique ID.
         /// </summary>
         public int UniqueID { get; private set; }
@@ -127,7 +122,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                         int sum = 0;
                         foreach (string summand in _val as IEnumerable<string> ?? [])
                         {
-                            if (_character.GetVariable(summand, out int intSummand))
+                            if (_character.TryGetVariable(summand, out int intSummand))
                             {
                                 sum += intSummand;
                             }
@@ -255,6 +250,11 @@ namespace VampireTheEverythingSheetNoReact.Models
         #endregion
 
         #region Private members
+
+        /// <summary>
+        /// The Character to whom this Trait belongs.
+        /// </summary>
+        private Character _character;
 
         /// <summary>
         /// Every key in this Dictionary is the "dummy" name of an option (stored in PossibleValues) whose actual value changes based on the 

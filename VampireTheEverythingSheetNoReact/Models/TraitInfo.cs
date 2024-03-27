@@ -65,6 +65,26 @@ namespace VampireTheEverythingSheetNoReact.Models
             return new ReadOnlyDictionary<int, TraitInfo>(allTraits);
         }
 
+        private static ReadOnlyDictionary<string, List<int>> GetAllTraitIDsByName()
+        {
+            SortedDictionary<string, List<int>> allTraits = [];
+
+            foreach(int traitID in AllTraitInfo.Keys)
+            {
+                string name = AllTraitInfo[traitID].Name;
+                if(allTraits.TryGetValue(name, out List<int>? list))
+                {
+                    list.Add(traitID);
+                }
+                else
+                {
+                    allTraits[name] = [traitID];
+                }
+            }
+
+            return new(allTraits);
+        }
+
         private TraitInfo(DataRow row)
         {
             UniqueID = Utils.TryGetInt(row["TRAIT_ID"], -1);

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Data;
+using VampireTheEverythingSheetNoReact.Data_Access_Layer;
 using VampireTheEverythingSheetNoReact.Shared_Files;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
@@ -23,6 +25,8 @@ namespace VampireTheEverythingSheetNoReact.Models
         }
 
         public Character(string uniqueID, Character character) : this(uniqueID, character._templateKeys) { }
+
+
 
         private readonly HashSet<TemplateKey> _templateKeys = [];
         public void AddTemplate(TemplateKey key)
@@ -57,6 +61,8 @@ namespace VampireTheEverythingSheetNoReact.Models
                 return;
             }
             _traits[traitID] = new Trait(this, TraitInfo.AllTraitInfo[traitID]);
+            _readonlyTraitsByID = null;
+            _readonlyTraitsByName = null;
         }
 
         public void RemoveTrait(int traitID)
@@ -69,6 +75,8 @@ namespace VampireTheEverythingSheetNoReact.Models
             //We have to remove the trait from the main list of traits, the variable registry, and the subtrait registry
 
             _traits.Remove(traitID);
+            _readonlyTraitsByID = null;
+            _readonlyTraitsByName = null;
 
             foreach (string key in _variables.Keys)
             {
@@ -113,6 +121,51 @@ namespace VampireTheEverythingSheetNoReact.Models
                     RemoveTrait(traitID);
                 }
             }
+        }
+
+        private static readonly ReadOnlyDictionary<string, List<int>> _traitIDsByName = FakeDatabase.GetDatabase().GetTraitIDsByName();
+
+
+        public object? GetTraitValue(string? traitName)
+        {
+            if(traitName == null || !_traitIDsByName.TryGetValue(traitName, out List<int>? traitIDs))
+            {
+                return null;
+            }
+
+            return GetTraitValue(traitIDs[0]);
+        }
+
+        public object? GetTraitValue(int? traitID)
+        {
+            if(traitID == null || !_traits.TryGetValue((int)traitID, out Trait? trait))
+            {
+                return null;
+            }
+
+            return trait.Value;
+        }
+
+        public bool TryGetTraitValue<T>(string traitName, out T? value)
+        {
+            if (GetTraitValue(traitName) is T t)
+            {
+                value = t;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        public bool TryGetTraitValue<T>(int traitID, out T? value)
+        {
+            if (GetTraitValue(traitID) is T t)
+            {
+                value = t;
+                return true;
+            }
+            value = default;
+            return false;
         }
 
         /// <summary>
@@ -186,10 +239,9 @@ namespace VampireTheEverythingSheetNoReact.Models
             return val;
         }
 
-        public bool GetVariable<T>(string variableName, out T? value)
+        public bool TryGetVariable<T>(string? variableName, out T? value)
         {
-            object? val = GetVariable(variableName);
-            if (val is T t)
+            if (GetVariable(variableName) is T t)
             {
                 value = t;
                 return true;
@@ -294,6 +346,50 @@ namespace VampireTheEverythingSheetNoReact.Models
         public string UniqueID { get; set; }
 
         private readonly SortedDictionary<int, Trait> _traits = [];
+
+        private ReadOnlyDictionary<int, Trait>? _readonlyTraitsByID = null;
+        public ReadOnlyDictionary<int, Trait> TraitsByID
+        {
+            get
+            {
+                return _readonlyTraitsByID ??= new(_traits);
+            }
+        }
+
+        private ReadOnlyDictionary<string, ReadOnlyCollection<Trait>>? _readonlyTraitsByName = null;
+        public ReadOnlyDictionary<string, ReadOnlyCollection<Trait>> TraitsByName
+        {
+            get
+            {
+                if(_readonlyTraitsByName == null)
+                {
+                    //this is honestly probably excessive, but we *are* giving access to private data here
+                    Dictionary<string,List<Trait>> buildDictionary = new(_traits.Count);
+                    foreach(Trait trait in _traits.Values)
+                    {
+                        if(buildDictionary.TryGetValue(trait.Name, out List<Trait>? traitsByName))
+                        {
+                            traitsByName.Add(trait);
+                        }
+                        else
+                        {
+                            buildDictionary[trait.Name] = [trait];
+                        }
+                    }
+
+                    Dictionary<string, ReadOnlyCollection<Trait>> buildReadOnlyLists = new(buildDictionary.Keys.Count);
+
+                    foreach(string name in buildDictionary.Keys)
+                    {
+                        buildReadOnlyLists[name] = new(buildDictionary[name]);
+                    }
+
+                    _readonlyTraitsByName = new(buildReadOnlyLists);
+                }
+
+                return _readonlyTraitsByName;
+            }
+        }
 
         public IEnumerable<Trait> TopTextTraits
         {

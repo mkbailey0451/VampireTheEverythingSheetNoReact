@@ -1,10 +1,27 @@
 ﻿@{
-    string charName = "Character Name"; //TODO: Actual character name, dynamic update on blur
-    ViewData["Title"] = string.IsNullOrEmpty(charName)
-        ? ""
-        : charName + " - ";
-}
+    Character? model = ViewData["CharacterModel"] as Character;
 
-<div class="text-center">
-@Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["CharacterModel"])
-</div>
+    if (model == null)
+    {
+        @:<div class="text-center">No character data was retrieved. Please try again later.</div>
+        ViewData["Title"] = "";
+        return;
+    }
+
+    if (model.TryGetTraitValue("Name", out string? charName))
+    {
+        ViewData["Title"] = charName + " - ";
+    }
+
+    const int NUM_MAIN_COLS = 3;
+
+    int currentRow = 1;
+
+    Trait[] topTextTraits = model.TopTextTraits.ToArray();
+
+    <div class="d-grid">
+        @(await Component.InvokeAsync("AutoGrid", new { traits = topTextTraits, columns = NUM_MAIN_COLS, startRow = currentRow }))
+    </div>
+
+    currentRow += (int)Math.Ceiling((double)(topTextTraits.Length) / (double)(NUM_MAIN_COLS));
+}

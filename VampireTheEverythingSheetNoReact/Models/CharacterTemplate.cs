@@ -51,7 +51,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             //We do this stupid loop-and-a-half thing because it lets us avoid a lot of type/ID/null checking and casting in the main body of the loop.
             TemplateKey templateKey = (TemplateKey)templateData.Rows[0]["TEMPLATE_ID"]; //TODO: Better type safety? Or should we trust the DB and let the exceptions get thrown? What exception even is this?
             CharacterTemplate? template = new(templateKey, (string)templateData.Rows[0]["TEMPLATE_NAME"]);
-
+            template._traitIDs.Add((int)templateData.Rows[0]["TRAIT_ID"]);
 
             SortedDictionary<TemplateKey, CharacterTemplate> output = new() { { templateKey, template } };
 

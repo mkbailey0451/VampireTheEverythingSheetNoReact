@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
+using VampireTheEverythingSheetNoReact.Models;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
 namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
@@ -82,6 +84,11 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
             return _paths;
         }
 
+        public ReadOnlyDictionary<string, List<int>> GetTraitIDsByName()
+        {
+            return _traitIDsByName;
+        }
+
         #endregion
 
         #region Private members
@@ -95,13 +102,6 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         /// Since this database is a singleton, we naturally want its constructor to be private.
         /// </summary>
         private FakeDatabase() { }
-
-        /// <summary>
-        /// A Dictionary mapping a trait name to all trait IDs which have that name.
-        /// In most cases, this is a one-to-one mapping, but some traits share a name 
-        /// (such as the Generation Background and its derived top trait, or magic paths belonging to multiple main Disciplines).
-        /// </summary>
-        private static readonly Dictionary<string, List<int>> _traitIDsByName = [];
 
         /// <summary>
         /// A DataTable emulating a table of templates.
@@ -4766,8 +4766,20 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                 traits.Rows.Add(row);
             }
 
-            //build _traitIDsByName collection
-            foreach (DataRow row in traits.Rows)
+            return traits;
+        }
+
+        /// <summary>
+        /// A Dictionary mapping a trait name to all trait IDs which have that name.
+        /// In most cases, this is a one-to-one mapping, but some traits share a name 
+        /// (such as the Generation Background and its derived top trait, or magic paths belonging to multiple main Disciplines).
+        /// </summary>
+        private static readonly ReadOnlyDictionary<string, List<int>> _traitIDsByName = BuildTraitIDsByName();
+        private static ReadOnlyDictionary<string, List<int>> BuildTraitIDsByName()
+        {
+            Dictionary<string, List<int>> output = new(_traits.Rows.Count);
+
+            foreach (DataRow row in _traits.Rows)
             {
                 //we don't really have a way to log problems with this, but it should also never happen. Again, in a real project, we'd try/catch and log the error to a log file or the database,
                 //but since we're essentially operating on dummy data, there's no real need.
@@ -4778,23 +4790,24 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                 }
                 string key = row[1].ToString() ?? "BAD TRAIT NAME";
                 int id = int.Parse(row[0].ToString() ?? "-1");
-                if (_traitIDsByName.TryGetValue(key, out List<int>? traitsOfThisName))
+                if (output.TryGetValue(key, out List<int>? traitsOfThisName))
                 {
                     traitsOfThisName.Add(id);
                 }
                 else
                 {
-                    _traitIDsByName[key] = [id];
+                    output[key] = [id];
                 }
             }
 
-            return traits;
+            return new(output);
         }
 
         /// <summary>
         /// A DataTable emulating a crosswalk table mapping template IDs to the IDs of their respective traits.
         /// </summary>
         private static readonly DataTable _template_x_trait = BuildTemplateXTrait();
+
         private static DataTable BuildTemplateXTrait()
         {
             DataTable template_x_trait = new()

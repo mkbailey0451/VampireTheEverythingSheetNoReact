@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 
 namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
 {
@@ -13,6 +14,11 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         /// Returns a DataTable representing the TRAIT table in the database.
         /// </summary>
         public DataTable GetTraitData();
+
+        /// <summary>
+        /// Returns a DataTable representing the TRAIT table in the database.
+        /// </summary>
+        public ReadOnlyDictionary<string, List<int>> GetTraitIDsByName();
 
         /// <summary>
         /// Returns a DataTable representing the mapping of character templates to traits in the database.
