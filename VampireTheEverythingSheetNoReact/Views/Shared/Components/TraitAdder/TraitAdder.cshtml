@@ -1,23 +1,21 @@
 ﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@model Trait[]
 @{
-    Trait[] traits = ViewData["Traits"] as Trait[] ?? [];
-    int column = ViewData["Column"] as int? ?? 1;
-    int row = ViewData["Row"] as int? ?? 0;
+    Trait[] traits = Model;
     string traitTypeName = traits.Length > 0
         ? " " + traits[0].Category.ToString()
         : "";
-    string controlId = "traitAdder-" + row + "-" + column;
+    string controlId = "traitAdder-" + traitTypeName;
 
     //TODO the button should do something
+    //TODO enclose in a GridElement and some kind of special column thing that handles both traits and this thing
 
-    <div class=" @(Utils.ColumnPaddingClass) " style="grid-column: @(column); grid-row: @(row);">
-        <label for="@(controlId)">Add@(traitTypeName):</label>
-        <select id="@(controlId)">
-            @foreach (Trait trait in traits)
-            {
-                <option value="@(trait.UniqueID)">@(trait.Name)</option>
-            }
-        </select>
-        <button data-control="@(controlId)">Add <span class="visually-hidden">@(traitTypeName)</span></button>
-    </div>
+    <label for="@(controlId)">Add@(traitTypeName):</label>
+    <select id="@(controlId)">
+        @foreach (Trait trait in traits)
+        {
+            <option value="@(trait.UniqueID)">@(trait.Name)</option>
+        }
+    </select>
+    <button data-control="@(controlId)">Add <span class="visually-hidden">@(traitTypeName)</span></button>
 }

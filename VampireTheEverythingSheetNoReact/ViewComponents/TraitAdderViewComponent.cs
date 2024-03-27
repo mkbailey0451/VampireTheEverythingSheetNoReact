@@ -5,12 +5,9 @@ namespace VampireTheEverythingSheetNoReact.ViewComponents
 {
     public class TraitAdderViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke(Trait[] traits, int column, int row)
+        public IViewComponentResult Invoke(Trait[] traits)
         {
-            ViewData["Traits"] = traits;
-            ViewData["Column"] = column;
-            ViewData["Row"] = row;
-            return View("TraitAdder");
+            return View("TraitAdder", traits);
         }
     }
 }
