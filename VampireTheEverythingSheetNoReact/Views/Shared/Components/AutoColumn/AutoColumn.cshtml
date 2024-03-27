@@ -1,0 +1,16 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@{
+    Trait[] traits = ViewData["Traits"] as Trait[] ?? [];
+    int column = ViewData["Column"] as int? ?? 1;
+    int row = ViewData["StartRow"] as int? ?? 0;
+
+    foreach(Trait trait in traits)
+    {
+        <text>
+            <div class=" @(Utils.ColumnPaddingClass) " style="grid-column: @(column); grid-row: @(row);">
+                @(trait.Name + ": " + Utils.TryGetString(trait.Value ?? ""))
+            </div>
+        </text>
+        row++;
+    }
+}

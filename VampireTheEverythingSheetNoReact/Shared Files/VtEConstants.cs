@@ -170,12 +170,7 @@
             /// <summary>
             /// Physical Description Bits are small aspects of the physical description of a character, such as their age, eye color, hair color, or fur color.
             /// </summary>
-            PhysicalDescriptionBit = 11,
-
-            /// <summary>
-            /// Hidden traits do not appear on the UI at all.
-            /// </summary>
-            Hidden = 12, //TODO is this used?
+            PhysicalDescriptionBit = 11
         };
 
         /// <summary>

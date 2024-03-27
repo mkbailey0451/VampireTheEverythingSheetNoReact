@@ -3,14 +3,14 @@ using VampireTheEverythingSheetNoReact.Models;
 
 namespace VampireTheEverythingSheetNoReact.ViewComponents
 {
-    public class AutoGridViewComponent : ViewComponent
+    public class AutoColumnViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke(Trait[] traits, int columns, int startRow)
+        public IViewComponentResult Invoke(Trait[] traits, int column, int startRow)
         {
             ViewData["Traits"] = traits;
-            ViewData["Columns"] = columns;
+            ViewData["Column"] = column;
             ViewData["StartRow"] = startRow;
-            return View("AutoGrid");
+            return View("AutoColumn");
         }
     }
 }

@@ -1,0 +1,23 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@{
+    Trait[] traits = ViewData["Traits"] as Trait[] ?? [];
+    int column = ViewData["Column"] as int? ?? 1;
+    int row = ViewData["Row"] as int? ?? 0;
+    string traitTypeName = traits.Length > 0
+        ? " " + traits[0].Category.ToString()
+        : "";
+    string controlId = "traitAdder-" + row + "-" + column;
+
+    //TODO the button should do something
+
+    <div class=" @(Utils.ColumnPaddingClass) " style="grid-column: @(column); grid-row: @(row);">
+        <label for="@(controlId)">Add@(traitTypeName):</label>
+        <select id="@(controlId)">
+            @foreach (Trait trait in traits)
+            {
+                <option value="@(trait.UniqueID)">@(trait.Name)</option>
+            }
+        </select>
+        <button data-control="@(controlId)">Add <span class="visually-hidden">@(traitTypeName)</span></button>
+    </div>
+}

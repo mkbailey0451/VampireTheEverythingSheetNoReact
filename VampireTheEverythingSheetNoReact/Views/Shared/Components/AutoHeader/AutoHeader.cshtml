@@ -1,0 +1,32 @@
+﻿@{
+    int columns = ViewData["Columns"] as int? ?? 1;
+    int row = ViewData["Row"] as int? ?? 0;
+    int headerLevel = ViewData["HeaderLevel"] as int? ?? 0;
+    string headerText = ViewData["HeaderText"] as string ?? "";
+}
+
+<div class="text-center justify-content-center" style=" grid-column-start: 1; grid-column-end: @(columns + 1); grid-row: @(row);">
+    @{
+        switch (headerLevel)
+        {
+            case 1:
+                <h1>@(headerText)</h1>
+                break;
+            case 2:
+                <h2>@(headerText)</h2>
+                break;
+            case 3:
+                <h3>@(headerText)</h3>
+                break;
+            case 4:
+                <h4>@(headerText)</h4>
+                break;
+            case 5:
+                <h5>@(headerText)</h5>
+                break;
+            case 6:
+                <h6>@(headerText)</h6>
+                break;
+        }
+    }
+</div>

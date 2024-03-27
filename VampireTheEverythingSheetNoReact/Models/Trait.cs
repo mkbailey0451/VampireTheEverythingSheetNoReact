@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics;
 using VampireTheEverythingSheetNoReact.Shared_Files;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
@@ -21,6 +22,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             Type = trait.Type;
             Category = trait.Category;
             SubCategory = trait.SubCategory;
+            Visible = trait.Visible;
 
             _data = trait._data;
             ProcessTraitData(_data);
@@ -38,6 +40,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             Type = template.Type;
             Category = template.Category;
             SubCategory = template.SubCategory;
+            Visible = template.Visible;
 
             _data = template.Data;
             ProcessTraitData(_data);
@@ -68,6 +71,11 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// The subcategory of the Trait, which helps determine where on the page it will be rendered and what character templates can use it.
         /// </summary>
         public TraitSubCategory SubCategory { get; private set; }
+
+        /// <summary>
+        /// Determines if this trait should be rendered on the UI. (Many traits, such as powers and Backgrounds, are not rendered on the UI unless specifically selected.)
+        /// </summary>
+        public bool Visible { get; set; }
 
         /// <summary>
         /// Returns the "display" value of the object, which is used for dropdowns with derived values and things like that. Contrasted with Value, 

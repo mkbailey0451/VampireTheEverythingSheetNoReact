@@ -1,4 +1,5 @@
-﻿@{
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@{
     Character? model = ViewData["CharacterModel"] as Character;
 
     if (model == null)
@@ -19,9 +20,55 @@
 
     Trait[] topTextTraits = model.TopTextTraits.ToArray();
 
-    <div class="d-grid">
+    <div class="d-grid text-center" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+        @(await Component.InvokeAsync("AutoHeader", new { columns = NUM_MAIN_COLS, row = currentRow, headerLevel = 1, headerText = model.GameTitle }))
+
+        @{ currentRow++; }
+
         @(await Component.InvokeAsync("AutoGrid", new { traits = topTextTraits, columns = NUM_MAIN_COLS, startRow = currentRow }))
+
+        @{ currentRow += (int)Math.Ceiling((double)(topTextTraits.Length) / (double)(NUM_MAIN_COLS));}
+
+        @(await Component.InvokeAsync("AutoHeader", new { columns = NUM_MAIN_COLS, row = currentRow, headerLevel = 2, headerText = "Attributes" }))
+
+        @{
+            currentRow++;
+
+            Trait[] physicalAttributes = Utils.VisibleOnly(model.PhysicalAttributes);
+            Trait[] socialAttributes = Utils.VisibleOnly(model.SocialAttributes);
+            Trait[] mentalAttributes = Utils.VisibleOnly(model.MentalAttributes);
+        }
+
+        @(await Component.InvokeAsync("AutoColumn", new { traits = physicalAttributes, column = 1, startRow = currentRow }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = socialAttributes, column = (NUM_MAIN_COLS + 1) / 2, startRow = currentRow }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = mentalAttributes, column = NUM_MAIN_COLS, startRow = currentRow }))
+
+        @{ currentRow += Utils.Max(physicalAttributes.Length, socialAttributes.Length, mentalAttributes.Length); }
+
+        @(await Component.InvokeAsync("AutoHeader", new { columns = NUM_MAIN_COLS, row = currentRow, headerLevel = 2, headerText = "Skills" }))
+
+        @{
+            currentRow++;
+
+            Trait[] physicalSkills = Utils.VisibleOnly(model.PhysicalSkills);
+            Trait[] socialSkills = Utils.VisibleOnly(model.SocialSkills);
+            Trait[] mentalSkills = Utils.VisibleOnly(model.MentalSkills);
+        }
+
+        @(await Component.InvokeAsync("AutoColumn", new { traits = physicalSkills, column = 1, startRow = currentRow }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = socialSkills, column = (NUM_MAIN_COLS + 1) / 2, startRow = currentRow }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = mentalSkills, column = NUM_MAIN_COLS, startRow = currentRow }))
+
+        @{
+            currentRow += Utils.Max(physicalSkills.Length, socialSkills.Length, mentalSkills.Length);
+            Trait[] hiddenPowers = Utils.InvisibleOnly(model.Powers);
+            Trait[] visiblePowers = Utils.VisibleOnly(model.Powers);
+
+            //TODO: Rendering of selection control to add powers
+        }
+
+
     </div>
 
-    currentRow += (int)Math.Ceiling((double)(topTextTraits.Length) / (double)(NUM_MAIN_COLS));
+    
 }

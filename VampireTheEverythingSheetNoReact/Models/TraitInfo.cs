@@ -47,6 +47,8 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public TraitSubCategory SubCategory { get; private set; }
 
+        public bool Visible { get; private set; }
+
         /// <summary>
         /// The TRAIT_DATA field from the database.
         /// It's easier to reprocess this every time (to ensure variables get properly registered and so on) than to try to sensibly copy all the data structures
@@ -94,6 +96,22 @@ namespace VampireTheEverythingSheetNoReact.Models
             SubCategory = (TraitSubCategory)Utils.TryGetInt(row["TRAIT_SUBCATEGORY"], 0);
 
             Data = Utils.TryGetString(row["TRAIT_DATA"], "");
+
+            Visible = VisibleByDefault();
+        }
+
+        private bool VisibleByDefault()
+        {
+            switch(Category)
+            {
+                case TraitCategory.Power:
+                case TraitCategory.SpecificPower:
+                case TraitCategory.Background:
+                case TraitCategory.MeritFlaw:
+                case TraitCategory.Weapon:
+                    return false;
+                default: return true;
+            }
         }
     }
 }

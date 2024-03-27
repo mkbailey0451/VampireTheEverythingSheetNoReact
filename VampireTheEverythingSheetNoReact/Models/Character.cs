@@ -26,7 +26,32 @@ namespace VampireTheEverythingSheetNoReact.Models
 
         public Character(string uniqueID, Character character) : this(uniqueID, character._templateKeys) { }
 
+        public string GameTitle
+        {
+            get
+            {
+                if(_templateKeys.Count != 1)
+                {
+                    return "Vampire: The Everything";
+                }
 
+                switch(_templateKeys.First())
+                {
+                    case TemplateKey.Mortal:
+                        return "Vampire: The Everything";
+                    case TemplateKey.Kindred:
+                        return "Vampire: The Masquerade";
+                    case TemplateKey.Kalebite:
+                        return "Werewolf: The Hunt";
+                    case TemplateKey.Fae:
+                        return "Changeling: The Journey";
+                    case TemplateKey.Mage:
+                        return "Mage: The Illumination";
+                }
+
+                return "Vampire: The Everything";
+            }
+        }
 
         private readonly HashSet<TemplateKey> _templateKeys = [];
         public void AddTemplate(TemplateKey key)
@@ -483,6 +508,17 @@ namespace VampireTheEverythingSheetNoReact.Models
                     from trait in _traits.Values
                     where trait.Category == TraitCategory.Skill
                         && trait.SubCategory == TraitSubCategory.Mental
+                    select trait;
+            }
+        }
+
+        public IEnumerable<Trait> Powers
+        {
+            get
+            {
+                return
+                    from trait in _traits.Values
+                    where trait.Category == TraitCategory.Power
                     select trait;
             }
         }
