@@ -25,9 +25,16 @@
             //TODO: Actual rendering logic for traits
             //TODO: align-self and justify-self in a class, and with sensible values
             <text>
-                <div class=" @(Utils.ColumnPaddingClass) " style="grid-column: @(trueCol); grid-row: @(trueRow);">
-                    @(traits[traitIdx].Name + ": " + Utils.TryGetString(traits[traitIdx].Value ?? ""))
-                </div>
+                @(
+                await Component.InvokeAsync("GridElement", new
+                {
+                    contents = Component.InvokeAsync("TraitRenderer", traits[traitIdx]),
+                    column = trueCol,
+                    row = trueRow,
+                    width = 1,
+                    height = 1
+                })
+                )
             </text>
             traitIdx++;
         }

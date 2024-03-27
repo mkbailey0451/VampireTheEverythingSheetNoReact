@@ -6,11 +6,16 @@
 
     foreach(Trait trait in traits)
     {
-        <text>
-            <div class=" @(Utils.ColumnPaddingClass) " style="grid-column: @(column); grid-row: @(row);">
-                @(trait.Name + ": " + Utils.TryGetString(trait.Value ?? ""))
-            </div>
-        </text>
+        @(
+        await Component.InvokeAsync("GridElement", new
+        {
+            contents = Component.InvokeAsync("TraitRenderer", trait),
+            column = column,
+            row = row,
+            width = 1,
+            height = 1
+        })
+        )
         row++;
     }
 }

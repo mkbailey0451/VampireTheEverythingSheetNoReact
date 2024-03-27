@@ -1,15 +1,16 @@
-﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+﻿@using Microsoft.AspNetCore.Html
+@using VampireTheEverythingSheetNoReact.Shared_Files
 @{
-    Task<IViewComponentResult>? contents = ViewData["Contents"] as Task<IViewComponentResult>;
+    Task<IHtmlContent>? contents = ViewData["Contents"] as Task<IHtmlContent>;
     int column = ViewData["Column"] as int? ?? 1;
     int row = ViewData["Row"] as int? ?? 1;
     int width = ViewData["Width"] as int? ?? 1;
     int height = ViewData["Height"] as int? ?? 1;
 }
 
-<div style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row-start: @(row); grid-row-end: @(row + height);">
+<div class=" @(Utils.ColumnPaddingClass)" style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row-start: @(row); grid-row-end: @(row + height);">
     @if(contents != null)
     {
-        await contents;
+        @(await contents);
     }
 </div>
