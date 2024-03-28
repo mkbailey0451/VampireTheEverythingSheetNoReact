@@ -1,8 +1,9 @@
 ﻿@using VampireTheEverythingSheetNoReact.Shared_Files
 @{
-    Trait[] traits = ViewData["Traits"] as Trait[] ?? [];
+    IEnumerable<Trait> traits = ViewData["Traits"] as IEnumerable<Trait> ?? [];
     int column = ViewData["Column"] as int? ?? 1;
-    int row = ViewData["StartRow"] as int? ?? 0;
+    int width = ViewData["Width"] as int? ?? 1;
+    int row = ViewData["StartRow"] as int? ?? 1;
 
     foreach(Trait trait in traits)
     {
@@ -12,7 +13,7 @@
             contents = Component.InvokeAsync("TraitRenderer", trait),
             column = column,
             row = row,
-            width = 1,
+            width = width,
             height = 1
         })
         )

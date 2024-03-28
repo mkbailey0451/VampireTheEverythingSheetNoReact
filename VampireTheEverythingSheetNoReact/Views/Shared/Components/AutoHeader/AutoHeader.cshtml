@@ -1,11 +1,12 @@
 ﻿@{
-    int columns = ViewData["Columns"] as int? ?? 1;
+    int column = ViewData["Column"] as int? ?? 1;
+    int width = ViewData["Width"] as int? ?? 1;
     int row = ViewData["Row"] as int? ?? 0;
     int headerLevel = ViewData["HeaderLevel"] as int? ?? 0;
     string headerText = ViewData["HeaderText"] as string ?? "";
 }
 
-<div class="text-center justify-content-center" style=" grid-column-start: 1; grid-column-end: @(columns + 1); grid-row: @(row);">
+<div class="text-center justify-content-center" style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row: @(row);">
     @{
         switch (headerLevel)
         {

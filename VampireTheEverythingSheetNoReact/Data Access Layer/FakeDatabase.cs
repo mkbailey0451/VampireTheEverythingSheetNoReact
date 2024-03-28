@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
 using VampireTheEverythingSheetNoReact.Models;
+using VampireTheEverythingSheetNoReact.Shared_Files;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
 namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
@@ -130,10 +131,14 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
             return templates;
         }
 
+        private static Dictionary<int, HashSet<int>> subtraitMap = new();
+
         /// <summary>
         /// A DataTable emulating a table of traits.
         /// </summary>
         private static readonly DataTable _traits = BuildTraitTable();
+
+        #region BuildTraitTable and helpers
         private static DataTable BuildTraitTable()
         {
             DataTable traits = new()
@@ -186,7 +191,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllArchetypes())
+                    $"{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllArchetypes())
                 ],
                 [
                     traitID++,
@@ -194,7 +199,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllArchetypes())
+                    $"{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllArchetypes())
                 ],
                 [
                     traitID++,
@@ -209,7 +214,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllClans())
+                    $"{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllClans())
                 ],
                 [
                     traitID++,
@@ -217,7 +222,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.IsVar}|GENERATION"
+                    $"{VtEKeywords.IsVar}{Utils.MiniChunkSplitter}GENERATION"
                 ],
                 [
                     traitID++,
@@ -232,7 +237,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.IsVar}|BROOD\n{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllBroods())
+                    $"{VtEKeywords.IsVar}{Utils.MiniChunkSplitter}BROOD{Utils.ChunkSplitter}{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllBroods())
                 ],
                 [
                     traitID++,
@@ -240,7 +245,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.DerivedOption}|[animal]|BROOD|" + string.Join("|", GetBroodBreedSwitch()) + "\n{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllBreeds())
+                    $"{VtEKeywords.DerivedOption}{Utils.MiniChunkSplitter}[animal]{Utils.MiniChunkSplitter}BROOD{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetBroodBreedSwitch()) + $"{Utils.MiniChunkSplitter}{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllBreeds())
                 ],
                 [
                     traitID++,
@@ -248,7 +253,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllTribes())
+                    $"{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllTribes())
                 ],
                 [
                     traitID++,
@@ -256,7 +261,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DropdownTrait,
                     (int)TraitCategory.TopText,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.PossibleValues}|" + string.Join("|", GetAllAuspices())
+                    $"{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + string.Join(Utils.MiniChunkSplitter, GetAllAuspices())
                 ],
                 //TODO more
                 #endregion
@@ -268,7 +273,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX" //min, max
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX" //min, max
                 ],
                 [
                     traitID++,
@@ -276,7 +281,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -284,7 +289,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
 
                 [
@@ -293,7 +298,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -301,7 +306,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -309,7 +314,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
 
                 [
@@ -318,7 +323,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -326,7 +331,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -334,7 +339,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|1|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 #endregion
 
@@ -345,7 +350,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -353,7 +358,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -361,7 +366,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -369,7 +374,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -377,7 +382,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -385,7 +390,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -393,7 +398,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -401,7 +406,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Physical,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
 
                 [
@@ -410,7 +415,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -418,7 +423,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -426,7 +431,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -434,7 +439,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -442,7 +447,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -450,7 +455,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -458,7 +463,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -466,7 +471,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Social,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
 
                 [
@@ -475,7 +480,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -483,7 +488,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -491,7 +496,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -499,7 +504,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -507,7 +512,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -515,7 +520,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -523,7 +528,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 [
                     traitID++,
@@ -531,7 +536,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Skill,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}|0|TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX"
                 ],
                 #endregion
 
@@ -541,7 +546,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Faith,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|5"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}5"
                 ],
 
                 //TODO: Physical Disciplines/etc need to have specific powers implemented a special way if we want to have all derived ratings - maybe don't and have a MINUSCOUNT rule or something?
@@ -552,7 +557,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -560,7 +565,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -568,7 +573,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -576,7 +581,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -584,7 +589,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -592,7 +597,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -600,7 +605,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -608,7 +613,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.MainTraitMax}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitMax}"
                 ],
                 [
                     traitID++,
@@ -616,7 +621,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -624,7 +629,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -632,7 +637,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -640,7 +645,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -648,7 +653,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -656,7 +661,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -664,7 +669,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -672,7 +677,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait, //TODO: Might beome IntegerTrait
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Necromancy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Necromancy"
                 ],
                 [
                     traitID++,
@@ -680,7 +685,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -688,7 +693,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -696,7 +701,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -704,7 +709,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -712,7 +717,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -720,7 +725,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -728,7 +733,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -736,7 +741,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -744,7 +749,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.MainTraitMax}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitMax}"
                 ],
                 [
                     traitID++,
@@ -752,7 +757,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -760,7 +765,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -768,7 +773,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -776,7 +781,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -784,7 +789,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -792,7 +797,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -800,7 +805,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -808,7 +813,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -816,7 +821,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -824,7 +829,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -832,7 +837,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -840,7 +845,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -848,7 +853,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Thaumaturgy"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Thaumaturgy"
                 ],
                 [
                     traitID++,
@@ -856,7 +861,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
 
                 //Branch Disciplines
@@ -866,7 +871,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -874,7 +879,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -882,7 +887,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
 
 
@@ -892,7 +897,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.MainTraitMax}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitMax}"
                 ],
                 [
                     traitID++,
@@ -900,7 +905,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Assamite Sorcery\n{VtEKeywords.MainTraitCount}|A:Awakening of the Steel"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Assamite Sorcery{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}{Utils.MiniChunkSplitter}A:Awakening of the Steel"
                 ],
                 [
                     traitID++,
@@ -908,7 +913,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Assamite Sorcery\n{VtEKeywords.MainTraitCount}|A:Hands of Destruction"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Assamite Sorcery{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}{Utils.MiniChunkSplitter}A:Hands of Destruction"
                 ],
                 [
                     traitID++,
@@ -916,7 +921,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Assamite Sorcery\n{VtEKeywords.MainTraitCount}|A:Movement of the Mind"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Assamite Sorcery{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}{Utils.MiniChunkSplitter}A:Movement of the Mind"
                 ],
                 [
                     traitID++,
@@ -924,7 +929,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Assamite Sorcery\n{VtEKeywords.MainTraitCount}|A:The Lure of Flames"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Assamite Sorcery{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}{Utils.MiniChunkSplitter}A:The Lure of Flames"
                 ],
                 [
                     traitID++,
@@ -932,7 +937,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Assamite Sorcery\n{VtEKeywords.MainTraitCount}|A:The Path of Blood"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Assamite Sorcery{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}{Utils.MiniChunkSplitter}A:The Path of Blood"
                 ],
                 [
                     traitID++,
@@ -940,7 +945,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Assamite Sorcery\n{VtEKeywords.MainTraitCount}|A:The Path of Conjuring"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Assamite Sorcery{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}{Utils.MiniChunkSplitter}A:The Path of Conjuring"
                 ],
 
                 [
@@ -949,7 +954,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -957,7 +962,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -965,7 +970,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -973,7 +978,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -981,7 +986,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.MainTraitMax}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitMax}"
                 ],
                 [
                     traitID++,
@@ -989,7 +994,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Koldunic Sorcery"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Koldunic Sorcery"
                 ],
                 [
                     traitID++,
@@ -997,7 +1002,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Koldunic Sorcery"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Koldunic Sorcery"
                 ],
                 [
                     traitID++,
@@ -1005,7 +1010,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Koldunic Sorcery"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Koldunic Sorcery"
                 ],
                 [
                     traitID++,
@@ -1013,7 +1018,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|MAGICMAX\n{VtEKeywords.SubTrait}|Koldunic Sorcery"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}MAGICMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Koldunic Sorcery"
                 ],
                 [
                     traitID++,
@@ -1021,7 +1026,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -1029,7 +1034,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -1037,7 +1042,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 [
                     traitID++,
@@ -1045,7 +1050,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.DerivedTrait,
                     (int)TraitCategory.Power,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.MainTraitCount}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.MainTraitCount}"
                 ],
                 #endregion
 
@@ -1058,7 +1063,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1066,7 +1071,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1074,7 +1079,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1082,7 +1087,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1090,7 +1095,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1098,7 +1103,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1106,7 +1111,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1114,7 +1119,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1122,7 +1127,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1130,7 +1135,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1138,7 +1143,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1146,7 +1151,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1154,7 +1159,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1162,7 +1167,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1170,7 +1175,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1178,7 +1183,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Animalism\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Animalism{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1186,7 +1191,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1194,7 +1199,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1202,7 +1207,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1210,7 +1215,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1218,7 +1223,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1226,7 +1231,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1234,7 +1239,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1242,7 +1247,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1250,7 +1255,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1258,7 +1263,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1266,7 +1271,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1274,7 +1279,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1282,7 +1287,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Auspex\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Auspex{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1290,7 +1295,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1298,7 +1303,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1306,7 +1311,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1314,7 +1319,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1322,7 +1327,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1330,7 +1335,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1338,7 +1343,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1346,7 +1351,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1354,7 +1359,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1362,7 +1367,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Bardo\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Bardo{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1370,7 +1375,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Celerity\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Celerity{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1378,7 +1383,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1386,7 +1391,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1394,7 +1399,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1402,7 +1407,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1410,7 +1415,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1418,7 +1423,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1426,7 +1431,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1434,7 +1439,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1442,7 +1447,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1450,7 +1455,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1458,7 +1463,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1466,7 +1471,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1474,7 +1479,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Chimerstry\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Chimerstry{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1482,7 +1487,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1490,7 +1495,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1498,7 +1503,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1506,7 +1511,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1514,7 +1519,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1522,7 +1527,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1530,7 +1535,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1538,7 +1543,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1546,7 +1551,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1554,7 +1559,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1562,7 +1567,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1570,7 +1575,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1578,7 +1583,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1586,7 +1591,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1594,7 +1599,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1602,7 +1607,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1610,7 +1615,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1618,7 +1623,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1626,7 +1631,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1634,7 +1639,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Daimoinon\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Daimoinon{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1642,7 +1647,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1650,7 +1655,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1658,7 +1663,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1666,7 +1671,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1674,7 +1679,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1682,7 +1687,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1690,7 +1695,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1698,7 +1703,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1706,7 +1711,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1714,7 +1719,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1722,7 +1727,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1730,7 +1735,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1738,7 +1743,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Dominate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Dominate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1746,7 +1751,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Fortitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Fortitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1754,7 +1759,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Fortitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Fortitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1762,7 +1767,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Fortitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Fortitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1770,7 +1775,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1778,7 +1783,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1786,7 +1791,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1794,7 +1799,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1802,7 +1807,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1810,7 +1815,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1818,7 +1823,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Melpominee\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Melpominee{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1826,7 +1831,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1834,7 +1839,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1842,7 +1847,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1850,7 +1855,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1858,7 +1863,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1866,7 +1871,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1874,7 +1879,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1882,7 +1887,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1890,7 +1895,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Mytherceria\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Mytherceria{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1898,7 +1903,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1906,7 +1911,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1914,7 +1919,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1922,7 +1927,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1930,7 +1935,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1938,7 +1943,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1946,7 +1951,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1954,7 +1959,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1962,7 +1967,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1970,7 +1975,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1978,7 +1983,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1986,7 +1991,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -1994,7 +1999,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2002,7 +2007,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2010,7 +2015,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obeah\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obeah{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2018,7 +2023,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2026,7 +2031,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2034,7 +2039,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2042,7 +2047,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2050,7 +2055,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2058,7 +2063,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2066,7 +2071,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2074,7 +2079,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2082,7 +2087,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2090,7 +2095,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2098,7 +2103,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2106,7 +2111,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2114,7 +2119,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obfuscate\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obfuscate{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2122,7 +2127,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2130,7 +2135,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2138,7 +2143,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2146,7 +2151,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2154,7 +2159,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2162,7 +2167,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2170,7 +2175,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2178,7 +2183,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2186,7 +2191,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2194,7 +2199,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2202,7 +2207,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2210,7 +2215,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2218,7 +2223,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2226,7 +2231,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Obtenebration\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Obtenebration{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2234,7 +2239,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Ogham\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Ogham{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2242,7 +2247,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Ogham\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Ogham{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2250,7 +2255,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Ogham\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Ogham{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2258,7 +2263,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Ogham\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Ogham{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2266,7 +2271,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Ogham\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Ogham{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2274,7 +2279,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Ogham\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Ogham{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2282,7 +2287,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Potence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Potence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2290,7 +2295,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Potence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Potence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2298,7 +2303,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Potence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Potence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2306,7 +2311,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2314,7 +2319,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2322,7 +2327,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2330,7 +2335,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2338,7 +2343,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2346,7 +2351,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2354,7 +2359,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2362,7 +2367,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2370,7 +2375,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2378,7 +2383,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2386,7 +2391,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2394,7 +2399,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Presence\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Presence{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2402,7 +2407,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2410,7 +2415,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2418,7 +2423,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2426,7 +2431,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2434,7 +2439,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2442,7 +2447,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2450,7 +2455,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2458,7 +2463,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2466,7 +2471,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2474,7 +2479,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2482,7 +2487,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2490,7 +2495,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2498,7 +2503,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Protean\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Protean{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2506,7 +2511,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2514,7 +2519,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2522,7 +2527,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2530,7 +2535,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2538,7 +2543,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2546,7 +2551,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2554,7 +2559,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2562,7 +2567,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2570,7 +2575,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2578,7 +2583,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2586,7 +2591,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2594,7 +2599,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2602,7 +2607,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2610,7 +2615,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Quietus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Quietus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2618,7 +2623,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Sanguinus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Sanguinus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2626,7 +2631,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Sanguinus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Sanguinus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2634,7 +2639,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Sanguinus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Sanguinus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2642,7 +2647,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Sanguinus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Sanguinus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2650,7 +2655,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Sanguinus\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Sanguinus{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2658,7 +2663,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2666,7 +2671,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2674,7 +2679,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2682,7 +2687,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2690,7 +2695,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2698,7 +2703,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2706,7 +2711,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2714,7 +2719,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2722,7 +2727,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2730,7 +2735,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Serpentis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Serpentis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2738,7 +2743,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2746,7 +2751,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2754,7 +2759,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2762,7 +2767,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2770,7 +2775,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2778,7 +2783,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2786,7 +2791,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2794,7 +2799,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2802,7 +2807,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Temporis\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Temporis{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2810,7 +2815,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Valeren\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Valeren{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2818,7 +2823,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Valeren\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Valeren{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2826,7 +2831,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Valeren\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Valeren{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2834,7 +2839,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Valeren\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Valeren{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2842,7 +2847,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Valeren\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Valeren{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2850,7 +2855,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2858,7 +2863,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2866,7 +2871,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2874,7 +2879,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2882,7 +2887,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2890,7 +2895,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2898,7 +2903,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2906,7 +2911,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2914,7 +2919,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2922,7 +2927,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2930,7 +2935,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Vicissitude\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Vicissitude{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2938,7 +2943,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2946,7 +2951,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2954,7 +2959,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2962,7 +2967,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2970,7 +2975,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2978,7 +2983,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2986,7 +2991,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -2994,7 +2999,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3002,7 +3007,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3010,7 +3015,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3018,7 +3023,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3026,7 +3031,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3034,7 +3039,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3042,7 +3047,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3050,7 +3055,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3058,7 +3063,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3066,7 +3071,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3074,7 +3079,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3082,7 +3087,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3090,7 +3095,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3098,7 +3103,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3106,7 +3111,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3114,7 +3119,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3122,7 +3127,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3130,7 +3135,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3138,7 +3143,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3146,7 +3151,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3154,7 +3159,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3162,7 +3167,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3170,7 +3175,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3178,7 +3183,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3186,7 +3191,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3194,7 +3199,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3202,7 +3207,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3210,7 +3215,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3218,7 +3223,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3226,7 +3231,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3234,7 +3239,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3242,7 +3247,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3250,7 +3255,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Visceratika\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Visceratika{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
 
 
@@ -3261,7 +3266,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Awakening of the Steel\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Awakening of the Steel{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3269,7 +3274,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Awakening of the Steel\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Awakening of the Steel{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3277,7 +3282,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Awakening of the Steel\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Awakening of the Steel{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3285,7 +3290,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Awakening of the Steel\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Awakening of the Steel{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3293,7 +3298,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Awakening of the Steel\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Awakening of the Steel{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3301,7 +3306,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3309,7 +3314,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3317,7 +3322,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3325,7 +3330,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3333,7 +3338,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3341,7 +3346,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3349,7 +3354,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3357,7 +3362,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3365,7 +3370,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3373,7 +3378,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3381,7 +3386,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3389,7 +3394,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3397,7 +3402,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3405,7 +3410,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3413,7 +3418,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3421,7 +3426,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3429,7 +3434,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3437,7 +3442,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3445,7 +3450,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3453,7 +3458,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3461,7 +3466,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3469,7 +3474,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3477,7 +3482,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3485,7 +3490,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3493,7 +3498,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|A:The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}A:The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
 
 
@@ -3504,7 +3509,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Earth\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Earth{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3512,7 +3517,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Earth\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Earth{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3520,7 +3525,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Earth\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Earth{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3528,7 +3533,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Earth\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Earth{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3536,7 +3541,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Earth\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Earth{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3544,7 +3549,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Fire\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Fire{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3552,7 +3557,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Fire\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Fire{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3560,7 +3565,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Fire\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Fire{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3568,7 +3573,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Fire\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Fire{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3576,7 +3581,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Fire\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Fire{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3584,7 +3589,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Water\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Water{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3592,7 +3597,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Water\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Water{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3600,7 +3605,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Water\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Water{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3608,7 +3613,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Water\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Water{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3616,7 +3621,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Water\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Water{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3624,7 +3629,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Water\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Water{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3632,7 +3637,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Wind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Wind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3640,7 +3645,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Wind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Wind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3648,7 +3653,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Wind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Wind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3656,7 +3661,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Wind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Wind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3664,7 +3669,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Way of Wind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Way of Wind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
 
 
@@ -3675,7 +3680,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Ash Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Ash Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3683,7 +3688,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Ash Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Ash Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3691,7 +3696,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Ash Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Ash Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3699,7 +3704,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Ash Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Ash Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3707,7 +3712,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Ash Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Ash Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3715,7 +3720,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Bone Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Bone Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3723,7 +3728,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Bone Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Bone Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3731,7 +3736,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Bone Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Bone Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3739,7 +3744,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Bone Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Bone Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3747,7 +3752,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Bone Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Bone Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3755,7 +3760,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Cenotaph Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Cenotaph Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3763,7 +3768,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Cenotaph Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Cenotaph Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3771,7 +3776,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Cenotaph Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Cenotaph Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3779,7 +3784,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Cenotaph Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Cenotaph Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3787,7 +3792,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Cenotaph Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Cenotaph Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3795,7 +3800,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Corpse in the Monster\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Corpse in the Monster{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3803,7 +3808,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Corpse in the Monster\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Corpse in the Monster{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3811,7 +3816,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Corpse in the Monster\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Corpse in the Monster{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3819,7 +3824,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Corpse in the Monster\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Corpse in the Monster{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3827,7 +3832,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Corpse in the Monster\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Corpse in the Monster{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3835,7 +3840,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Grave’s Decay\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Grave’s Decay{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3843,7 +3848,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Grave’s Decay\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Grave’s Decay{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3851,7 +3856,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Grave’s Decay\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Grave’s Decay{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3859,7 +3864,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Grave’s Decay\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Grave’s Decay{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3867,7 +3872,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Grave’s Decay\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Grave’s Decay{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3875,7 +3880,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Four Humors\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Four Humors{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3883,7 +3888,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Four Humors\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Four Humors{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3891,7 +3896,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Four Humors\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Four Humors{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3899,7 +3904,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Four Humors\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Four Humors{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3907,7 +3912,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Four Humors\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Four Humors{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3915,7 +3920,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Sepulchre Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Sepulchre Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3923,7 +3928,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Sepulchre Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Sepulchre Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3931,7 +3936,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Sepulchre Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Sepulchre Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3939,7 +3944,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Sepulchre Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Sepulchre Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3947,7 +3952,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Sepulchre Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Sepulchre Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3955,7 +3960,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Vitreous Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Vitreous Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3963,7 +3968,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Vitreous Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Vitreous Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3971,7 +3976,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Vitreous Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Vitreous Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3979,7 +3984,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Vitreous Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Vitreous Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -3987,7 +3992,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Vitreous Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Vitreous Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
 
 
@@ -3998,7 +4003,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Elemental Mastery\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Elemental Mastery{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4006,7 +4011,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Elemental Mastery\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Elemental Mastery{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4014,7 +4019,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Elemental Mastery\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Elemental Mastery{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4022,7 +4027,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Elemental Mastery\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Elemental Mastery{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4030,7 +4035,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Elemental Mastery\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Elemental Mastery{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4038,7 +4043,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Green Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Green Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4046,7 +4051,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Green Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Green Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4054,7 +4059,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Green Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Green Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4062,7 +4067,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Green Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Green Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4070,7 +4075,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Green Path\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Green Path{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4078,7 +4083,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4086,7 +4091,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4094,7 +4099,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4102,7 +4107,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4110,7 +4115,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Hands of Destruction\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Hands of Destruction{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4118,7 +4123,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4126,7 +4131,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4134,7 +4139,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4142,7 +4147,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4150,7 +4155,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Movement of the Mind\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Movement of the Mind{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4158,7 +4163,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Neptune’s Might\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Neptune’s Might{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4166,7 +4171,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Neptune’s Might\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Neptune’s Might{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4174,7 +4179,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Neptune’s Might\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Neptune’s Might{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4182,7 +4187,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Neptune’s Might\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Neptune’s Might{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4190,7 +4195,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Neptune’s Might\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Neptune’s Might{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4198,7 +4203,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4206,7 +4211,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4214,7 +4219,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4222,7 +4227,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4230,7 +4235,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Lure of Flames\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Lure of Flames{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4238,7 +4243,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4246,7 +4251,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4254,7 +4259,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4262,7 +4267,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4270,7 +4275,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Blood\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Blood{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4278,7 +4283,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4286,7 +4291,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4294,7 +4299,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4302,7 +4307,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4310,7 +4315,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Conjuring\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Conjuring{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4318,7 +4323,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Corruption\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Corruption{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4326,7 +4331,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Corruption\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Corruption{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4334,7 +4339,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Corruption\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Corruption{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4342,7 +4347,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Corruption\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Corruption{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4350,7 +4355,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Corruption\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Corruption{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4358,7 +4363,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Mars\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Mars{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4366,7 +4371,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Mars\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Mars{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4374,7 +4379,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Mars\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Mars{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4382,7 +4387,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Mars\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Mars{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4390,7 +4395,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Mars\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Mars{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4398,7 +4403,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Technomancy\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Technomancy{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4406,7 +4411,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Technomancy\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Technomancy{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4414,7 +4419,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Technomancy\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Technomancy{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4422,7 +4427,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Technomancy\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Technomancy{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4430,7 +4435,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of Technomancy\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of Technomancy{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4438,7 +4443,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Father’s Vengeance\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Father’s Vengeance{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4446,7 +4451,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Father’s Vengeance\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Father’s Vengeance{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4454,7 +4459,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Father’s Vengeance\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Father’s Vengeance{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4462,7 +4467,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Father’s Vengeance\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Father’s Vengeance{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4470,7 +4475,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|The Path of the Father’s Vengeance\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}The Path of the Father’s Vengeance{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4478,7 +4483,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Weather Control\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Weather Control{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4486,7 +4491,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Weather Control\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Weather Control{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4494,7 +4499,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Weather Control\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Weather Control{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4502,7 +4507,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Weather Control\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Weather Control{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4510,7 +4515,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|Weather Control\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}Weather Control{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4518,7 +4523,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|True Faith\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}True Faith{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4526,7 +4531,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|True Faith\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}True Faith{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4534,7 +4539,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|True Faith\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}True Faith{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4542,7 +4547,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|True Faith\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}True Faith{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
                 [
                     traitID++,
@@ -4550,7 +4555,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.SelectableTrait,
                     (int)TraitCategory.SpecificPower,
                     (int)TraitSubCategory.Discipline,
-                    $"{VtEKeywords.AutoHide}\n{VtEKeywords.MinMax}|0|TRAITMAX\n{VtEKeywords.SubTrait}|True Faith\n{VtEKeywords.PowerLevel}"
+                    $"{VtEKeywords.AutoHide}{Utils.ChunkSplitter}{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.SubTrait}{Utils.MiniChunkSplitter}True Faith{Utils.ChunkSplitter}{VtEKeywords.PowerLevel}"
                 ],
 
                 //TODO: More Specific Powers (oh golly...)
@@ -4564,7 +4569,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4572,7 +4577,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4580,7 +4585,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4588,7 +4593,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4596,7 +4601,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4604,7 +4609,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|GENERATIONMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}GENERATIONMAX"
                 ],
                 [
                     traitID++,
@@ -4612,7 +4617,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4620,7 +4625,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4628,7 +4633,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4636,7 +4641,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4644,7 +4649,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 [
                     traitID++,
@@ -4652,7 +4657,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Background,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|BACKGROUNDMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}BACKGROUNDMAX"
                 ],
                 #endregion
 
@@ -4662,7 +4667,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     (int)TraitType.PathTrait,
                     (int)TraitCategory.MoralPath,
                     (int)TraitSubCategory.None,
-                    $"{VtEKeywords.MinMax}|0|PATHMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}PATHMAX"
                 ],
                 //TODO: Create a PathInfo table with the data we need to populate the other fields (Bearing etc) on the front end and handle logic on the back end
 
@@ -4760,6 +4765,12 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                 ],
              */
 
+            const int traitDataColumn = 5;
+            //maps 
+            Dictionary<string, int> mainTraitMap = new();
+            //do some processing to the data, like associatting trait names to actual trait IDs - things we'd normally do in the DB as part of table creation
+            TraitTableCleanup(rawTraits, traitDataColumn, mainTraitMap);
+
             //build the actual datatable rows
             foreach (object?[] row in rawTraits)
             {
@@ -4768,6 +4779,89 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
 
             return traits;
         }
+
+        private static void TraitTableCleanup(object?[][] rawTraits, int traitDataColumn, Dictionary<string, int> mainTraitMap)
+        {
+            foreach (object?[] row in rawTraits)
+            {
+                if (row.Length > traitDataColumn)
+                {
+                    TraitRowCleanup(row, traitDataColumn, mainTraitMap);
+                }
+            }
+        }
+
+        private static void TraitRowCleanup(object?[] row, int traitDataColumn, Dictionary<string, int> mainTraitMap)
+        {
+            int traitID = row[0] as int? ?? -1;
+            string traitName = row[1] as string ?? "";
+            string? traitData = row[traitDataColumn] as string;
+
+            if (string.IsNullOrEmpty(traitData))
+            {
+                return;
+            }
+
+            string[] chunks = traitData.Split(Utils.ChunkSplitter);
+
+            for (int x = 0; x < chunks.Length; x++)
+            {
+                chunks[x] = TraitChunkCleanup(chunks[x], traitID, traitName, mainTraitMap);
+            }
+
+            row[traitDataColumn] = string.Join(Utils.ChunkSplitter, chunks);
+        }
+
+        private static string TraitChunkCleanup(string chunk, int traitID, string traitName, Dictionary<string, int> mainTraitMap)
+        {
+            if(string.IsNullOrEmpty(chunk))
+            {
+                return chunk;
+            }
+
+            string[] miniChunks = chunk.Split(Utils.MiniChunkSplitter);
+
+            if(miniChunks[0] == VtEKeywords.MainTraitCount || miniChunks[0] == VtEKeywords.MainTraitMax)
+            {
+                if(miniChunks.Length > 1)
+                {
+                    //this is a main trait with a special annotated name, which must be added to the registry
+                    mainTraitMap[miniChunks[1]] = traitID;
+                }
+                else
+                {
+                    //this is a main trait without a special annotated name, so we add the trait's actual name instead
+                    mainTraitMap[traitName] = traitID;
+                }
+                //either way, we don't keep the annotation and just return the main trait designator
+                return miniChunks[0];
+            }
+
+            if (miniChunks[0] == VtEKeywords.SubTrait)
+            {
+                //subtraits need trait IDs instead of trait names
+                if (mainTraitMap.TryGetValue(miniChunks[1], out int mainTraitID))
+                {
+                    if(subtraitMap.TryGetValue(mainTraitID, out HashSet<int>? subtraitSet))
+                    {
+                        subtraitSet.Add(traitID);
+                    }
+                    else
+                    {
+                        subtraitMap[mainTraitID] = new() { traitID };
+                    }
+
+                    return string.Join(Utils.MiniChunkSplitter, miniChunks[0], mainTraitID.ToString());
+                }
+                throw new ArgumentOutOfRangeException("Could not find trait ID for subtrait lookup key " + miniChunks[1]);
+            }
+
+            //TODO: any further cleanup as needed
+
+            return chunk;
+        }
+        #endregion
+
 
         /// <summary>
         /// A Dictionary mapping a trait name to all trait IDs which have that name.
@@ -4820,90 +4914,99 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
             };
 
             #region Build template_x_trait
-            string[] mortalTraitNames = [
+            BuildTemplate(template_x_trait, TemplateKey.Mortal,
+                [
+                    "Name",
+                    "Player",
+                    "Chronicle",
+                    "Nature",
+                    "Demeanor",
+                    "Concept",
 
-                "Name",
-                "Player",
-                "Chronicle",
-                "Nature",
-                "Demeanor",
-                "Concept",
+                    "Strength",
+                    "Dexterity",
+                    "Stamina",
 
-                "Strength",
-                "Dexterity",
-                "Stamina",
+                    "Charisma",
+                    "Manipulation",
+                    "Composure",
 
-                "Charisma",
-                "Manipulation",
-                "Composure",
+                    "Intelligence",
+                    "Wits",
+                    "Resolve",
 
-                "Intelligence",
-                "Wits",
-                "Resolve",
+                    "Athletics",
+                    "Brawl",
+                    "Drive",
+                    "Firearms",
+                    "Larceny",
+                    "Stealth",
+                    "Survival",
+                    "Weaponry",
 
-                "Athletics",
-                "Brawl",
-                "Drive",
-                "Firearms",
-                "Larceny",
-                "Stealth",
-                "Survival",
-                "Weaponry",
+                    "Animal Ken",
+                    "Empathy",
+                    "Expression",
+                    "Intimidation",
+                    "Persuasion",
+                    "Socialize",
+                    "Streetwise",
+                    "Subterfuge",
 
-                "Animal Ken",
-                "Empathy",
-                "Expression",
-                "Intimidation",
-                "Persuasion",
-                "Socialize",
-                "Streetwise",
-                "Subterfuge",
+                    "Academics",
+                    "Computer",
+                    "Crafts",
+                    "Investigation",
+                    "Medicine",
+                    "Occult",
+                    "Politics",
+                    "Science",
 
-                "Academics",
-                "Computer",
-                "Crafts",
-                "Investigation",
-                "Medicine",
-                "Occult",
-                "Politics",
-                "Science",
+                    "True Faith",
 
-                "True Faith",
+                    "Allies",
+                    "Alternate Identity",
+                    "Contacts",
+                    "Fame",
+                    "Influence",
+                    "Mentor",
+                    "Resources",
+                    "Retainers",
 
-                "Allies",
-                "Alternate Identity",
-                "Contacts",
-                "Fame",
-                "Influence",
-                "Mentor",
-                "Resources",
-                "Retainers",
+                    "Size",
+                    "Health",
+                    "Willpower",
+                    "Defense",
+                    "Speed",
+                    "Run Speed",
+                    "Initiative",
+                    "Soak",
 
-                "Size",
-                "Health",
-                "Willpower",
-                "Defense",
-                "Speed",
-                "Run Speed",
-                "Initiative",
-                "Soak",
+                    "Path"
 
-                "Path"
+                    //TODO: Weapons, Physical Description
+                ]);
 
-                //TODO: Weapons, Physical Description
-            ];
 
-            foreach (string traitName in mortalTraitNames)
-            {
-                foreach (int id in _traitIDsByName[traitName])
-                {
-                    template_x_trait.Rows.Add((int)TemplateKey.Mortal, id);
-                }
-            }
 
             #endregion
 
             return template_x_trait;
+        }
+
+        private static void BuildTemplate(DataTable template_x_trait, TemplateKey key, IEnumerable<string> traitNames)
+        {
+        }
+
+        private static IEnumerable<int> AllTraitsByNames(IEnumerable<string> traitNames)
+        {
+            foreach(string traitName in traitNames)
+            {
+                foreach(int traitID in _traitIDsByName[traitName])
+                {
+                    yield return traitID;
+                }
+            }
         }
 
         private static readonly DataTable _paths = BuildPathTable();
@@ -4927,7 +5030,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "Humanity",
                     "Conscience and Self-Control",
                     "Humanity",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "Selfish acts.",
                         "Injury to another (in Frenzy or otherwise, except in self-defense, etc).",
                         "Intentional injury to another (except self-defense, consensual, etc).",
@@ -4944,7 +5047,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "Assamia",
                     "Conviction and Self-Control",
                     "Resolve",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "Feeding on a mortal without consent",
                         "Breaking a word of honor to a Clanmate",
                         "Refusing to offer a non-Assamite an opportunity to convert",
@@ -4961,7 +5064,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "The Ophidian Path",
                     "Conviction and Self-Control",
                     "Devotion",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "Pursuing one’s own indulgences instead of another’s",
                         "Refusing to aid another follower of the Path",
                         "Aiding a vampire in Golconda or anyone with True Faith",
@@ -4978,7 +5081,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "The Path of the Archivist",
                     "Conviction and Self-Control",
                     "Sagacity",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "Refusing to share knowledge with another",
                         "Refusing to pursue existing knowledge, going hungry",
                         "Refusing to research and expand the horizons of knowledge",
@@ -4995,7 +5098,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "The Path of Bones",
                     "Conviction and Self-Control",
                     "Silence",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "Showing a fear of death",
                         "Failing to study an occurrence of death",
                         "Causing the suffering of another for no personal gain",
@@ -5012,7 +5115,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "The Path of Caine",
                     "Conviction and Instinct",
                     "Faith",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "Failing to engage in research or study each night, regardless of circumstances",
                         "Failing to instruct other vampires in the Path of Caine",
                         "Befriending or co-existing with mortals",
@@ -5029,7 +5132,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "Humanity",
                     "Conscience and Self-Control",
                     "Humane",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "",
                         "",
                         "",
@@ -5046,7 +5149,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
                     "Humanity",
                     "Conscience and Self-Control",
                     "Humane",
-                    string.Join('\n',
+                    string.Join(Utils.ChunkSplitter,
                         "",
                         "",
                         "",
@@ -5074,6 +5177,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetAllArchetypes()
         {
             return [
+                "",
                 "Architect",
                 "Autocrat",
                 "Bon Vivant",
@@ -5121,6 +5225,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetAllClans()
         {
             return [
+                "",
                 "Assamite (Hunter)",
                 "Assamite (Vizier)",
                 "Baali",
@@ -5157,6 +5262,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetAllBroods()
         {
             return [
+                "",
                 "Kalebite",
                 "Aragite",
                 "Arumite",
@@ -5182,6 +5288,8 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetBroodBreedSwitch()
         {
             return [
+                "",
+                "[animal]",
                 "Kalebite",
                 "Lycanth",
                 "Aragite",
@@ -5226,6 +5334,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetAllBreeds()
         {
             return [
+                "",
                 "Anthrope",
                 "Yvrid",
                 "[animal]"
@@ -5235,6 +5344,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetAllTribes()
         {
             return [
+                "",
                 "Ash Walkers",
                 "Daughters of Zevah",
                 "Firstborn",
@@ -5257,6 +5367,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         private static IEnumerable<string> GetAllAuspices()
         {
             return [
+                "",
                 "Scurra",
                 "Logios",
                 "Iudex",

@@ -381,6 +381,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
 
+        //TODO: Get rid of ever trying to reference traits purely by name
         private ReadOnlyDictionary<string, ReadOnlyCollection<Trait>>? _readonlyTraitsByName = null;
         public ReadOnlyDictionary<string, ReadOnlyCollection<Trait>> TraitsByName
         {
@@ -416,111 +417,64 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
 
-        public IEnumerable<Trait> TopTextTraits
+        /// <summary>
+        /// Returns an IEnumerable containing all Traits belonging to the specified TraitCategory.
+        /// </summary>
+        public IEnumerable<Trait> GetTraits(TraitCategory category)
         {
-            get
+            //There's two ways to do this - the LINQ way and the foreach-if way - and I'm not sure which I like better or which performs better.
+            //I decided to mix it up for the demo project, as much to demonstrate that I can do both as anything else.
+            foreach (Trait trait in _traits.Values)
             {
-                //There's two ways to do this - the LINQ way and the foreach-if way - and I'm not sure which I like better or which performs better.
-                //I decided to mix it up for the demo project, as much to demonstrate that I can do both as anything else.
-                foreach (Trait trait in _traits.Values)
+                if (trait.Category == category)
                 {
-                    if (trait.Category == TraitCategory.TopText)
-                    {
-                        yield return trait;
-                    }
+                    yield return trait;
                 }
             }
         }
 
-        public IEnumerable<Trait> PhysicalAttributes
+        /// <summary>
+        /// Returns an IEnumerable containing all Traits belonging to the specified TraitCategory, and having the correct visibility.
+        /// </summary>
+        public IEnumerable<Trait> GetTraits(TraitCategory category, TraitVisibility visible)
         {
-            get
+            foreach (Trait trait in _traits.Values)
             {
-                //This is definitely more compact.
-                return
-                    from trait in _traits.Values
-                    where trait.Category == TraitCategory.Attribute
-                        && trait.SubCategory == TraitSubCategory.Physical //If I'm reading the docs correctly, the underlying SortedDictionary eliminates the need for orderby.
-                    select trait;
-            }
-        }
-
-        public IEnumerable<Trait> SocialAttributes
-        {
-            get
-            {
-                //But I *think* this has less runtime overhead.
-                //Might not make a real difference though. We might be talking performance gains on the order of microseconds,
-                //which would only matter in very high-performance apps.
-                //(But, you know, in that situation, we should absolutely do this - or an even faster method. I went even farther than this in IslandSanctuarySolver, after all.)
-                foreach (Trait trait in _traits.Values)
+                if (trait.Category == category && trait.Visible == visible)
                 {
-                    if (trait.Category == TraitCategory.Attribute && trait.SubCategory == TraitSubCategory.Social)
-                    {
-                        yield return trait;
-                    }
+                    yield return trait;
                 }
             }
         }
 
-        public IEnumerable<Trait> MentalAttributes
+        /// <summary>
+        /// Returns an IEnumerable containing all Traits belonging to the specified TraitCategory and TraitSubCategory.
+        /// </summary>
+        public IEnumerable<Trait> GetTraits(TraitCategory category, TraitSubCategory sub)
         {
-            get
-            {
-                //Going with this for now. It's easier to edit.
-                return
-                    from trait in _traits.Values
-                    where trait.Category == TraitCategory.Attribute
-                        && trait.SubCategory == TraitSubCategory.Mental
-                    select trait;
-            }
+            //This is definitely more compact.
+            //Also, we can't memoize these, unless we want to take responsibility for updating the memoized data every time the templates change, which kind of defeats the point.
+            return
+                from trait in _traits.Values
+                where trait.Category == category
+                    && trait.SubCategory == sub //If I'm reading the docs correctly, the underlying SortedDictionary eliminates the need for orderby.
+                select trait;
         }
 
-        public IEnumerable<Trait> PhysicalSkills
-        {
-            get
-            {
-                return
-                    from trait in _traits.Values
-                    where trait.Category == TraitCategory.Skill
-                        && trait.SubCategory == TraitSubCategory.Physical
-                    select trait;
-            }
-        }
 
-        public IEnumerable<Trait> SocialSkills
+        /// <summary>
+        /// Returns an IEnumerable containing all Traits belonging to the specified TraitCategory and TraitSubCategory.
+        /// </summary>
+        public IEnumerable<Trait> GetTraits(TraitCategory category, TraitSubCategory sub, TraitVisibility visible)
         {
-            get
-            {
-                return
-                    from trait in _traits.Values
-                    where trait.Category == TraitCategory.Skill
-                        && trait.SubCategory == TraitSubCategory.Social
-                    select trait;
-            }
-        }
-
-        public IEnumerable<Trait> MentalSkills
-        {
-            get
-            {
-                return
-                    from trait in _traits.Values
-                    where trait.Category == TraitCategory.Skill
-                        && trait.SubCategory == TraitSubCategory.Mental
-                    select trait;
-            }
-        }
-
-        public IEnumerable<Trait> Powers
-        {
-            get
-            {
-                return
-                    from trait in _traits.Values
-                    where trait.Category == TraitCategory.Power
-                    select trait;
-            }
+            //This is definitely more compact.
+            //Also, we can't memoize these, unless we want to take responsibility for updating the memoized data every time the templates change, which kind of defeats the point.
+            return
+                from trait in _traits.Values
+                where trait.Category == category
+                    && trait.SubCategory == sub
+                    && trait.Visible == visible //If I'm reading the docs correctly, the underlying SortedDictionary eliminates the need for orderby.
+                select trait;
         }
 
         private object? GetReservedVariable(string variableName)

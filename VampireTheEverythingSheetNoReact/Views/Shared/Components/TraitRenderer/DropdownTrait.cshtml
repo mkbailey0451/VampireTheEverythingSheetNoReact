@@ -1,0 +1,16 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@model Trait
+
+@{
+    //TODO: DDL size
+    string controlID = "trait-ddl-" + Model.UniqueID;
+    <div class="d-flex justify-content-between">
+        <label for="@(controlID)">@(Model.Name)</label>
+        <select id="@(controlID)" class="align-self-end">
+            @foreach(string option in Model.PossibleValues)
+            {
+                <option value="@(option)">@(option)</option>
+            }
+        </select>
+    </div>
+}

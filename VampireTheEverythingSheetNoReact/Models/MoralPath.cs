@@ -64,7 +64,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             Name = Utils.TryGetString(row["PATH_NAME"], "");
             Virtues = Utils.TryGetString(row["VIRTUES"].ToString(), "");
             Bearing = Utils.TryGetString(row["BEARING"].ToString(), "");
-            _hierarchyOfSins = new(Utils.TryGetString(row["HIERARCHY_OF_SINS"].ToString(), "").Split('\n'));
+            _hierarchyOfSins = new(Utils.TryGetString(row["HIERARCHY_OF_SINS"].ToString(), "").Split(Utils.ChunkSplitter));
 
             ResolvePenalty = 0;
             if (!Virtues.Contains("conscience", StringComparison.CurrentCultureIgnoreCase))

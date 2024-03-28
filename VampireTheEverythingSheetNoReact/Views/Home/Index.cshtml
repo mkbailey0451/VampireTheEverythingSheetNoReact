@@ -1,4 +1,5 @@
 ﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants
 @{
     Character? model = ViewData["CharacterModel"] as Character;
 
@@ -14,58 +15,152 @@
         ViewData["Title"] = charName + " - ";
     }
 
-    const int NUM_MAIN_COLS = 3;
+    //The number of columns outside the main layout on each side.
+    const int borderWidth = 1;
+
+    //The number of "bumper" columns between each content column.
+    const int bumperWidth = 1;
+
+    //The number of "real" columns, as the user will experience the page. This is a three-column layout, so this nuber is three.
+    const int contentCols = 3;
+
+    //The number of real columns that encompass each "content" column. In other words, the ratio between the width of the content columns and the HTML columns.
+    const int contentColWidth = 10;
+
+    //The number of real columns that encompass a sub-column. Sub-columns are used to create smaller UI elements like vital statistics.
+    const int subColWidth = contentColWidth / 2;
+
+    //The number of actual columns in the grid, including spacing columns and so on.
+    const int realCols =
+        (borderWidth * 2) +
+        (bumperWidth * (contentCols - 1)) +
+        (contentCols * contentColWidth);
+
+    //The number of columns an element should span to encompass the entire width of the layout (minus the borders). 
+    const int mainContentColumnWidth = realCols - (borderWidth * 2);
+
+    //The start point of each content column.
+    const int leftColumn = borderWidth + 1;
+    const int midColumn = leftColumn + contentColWidth + bumperWidth;
+    const int rightColumn = midColumn + contentColWidth + bumperWidth;
+
+    int[] columnIndices = new int[] { leftColumn, midColumn, rightColumn };
 
     int currentRow = 1;
 
-    Trait[] topTextTraits = model.TopTextTraits.ToArray();
+    IEnumerable<Trait> topTextTraits = model.GetTraits(TraitCategory.TopText);
 
-    <div class="d-grid text-center" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-        @(await Component.InvokeAsync("AutoHeader", new { columns = NUM_MAIN_COLS, row = currentRow, headerLevel = 1, headerText = model.GameTitle }))
+    //TODO:there has to be a better way of determining currentRow than what we're doing. Maybe using model objects we can pass by reference and get back RowsUsed or something?
+    //TODO: Some or all of this style may be classable
+    <div class="d-grid text-center" style="grid-template-columns: repeat(@(realCols), minmax(0, 1fr)) !important; grid-auto-rows: max-content;">
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = mainContentColumnWidth, row = currentRow, headerLevel = 1, headerText = model.GameTitle }))
 
         @{ currentRow++; }
 
-        @(await Component.InvokeAsync("AutoGrid", new { traits = topTextTraits, columns = NUM_MAIN_COLS, startRow = currentRow }))
+        @(await Component.InvokeAsync("AutoGrid", new { traits = topTextTraits, columnIndices = columnIndices, width = contentColWidth, startRow = currentRow }))
 
-        @{ currentRow += (int)Math.Ceiling((double)(topTextTraits.Length) / (double)(NUM_MAIN_COLS));}
+        @{ currentRow += (int)Math.Ceiling((double)(topTextTraits.Count()) / (double)(contentCols));}
 
-        @(await Component.InvokeAsync("AutoHeader", new { columns = NUM_MAIN_COLS, row = currentRow, headerLevel = 2, headerText = "Attributes" }))
-
-        @{
-            currentRow++;
-
-            Trait[] physicalAttributes = Utils.VisibleOnly(model.PhysicalAttributes);
-            Trait[] socialAttributes = Utils.VisibleOnly(model.SocialAttributes);
-            Trait[] mentalAttributes = Utils.VisibleOnly(model.MentalAttributes);
-        }
-
-        @(await Component.InvokeAsync("AutoColumn", new { traits = physicalAttributes, column = 1, startRow = currentRow }))
-        @(await Component.InvokeAsync("AutoColumn", new { traits = socialAttributes, column = (NUM_MAIN_COLS + 1) / 2, startRow = currentRow }))
-        @(await Component.InvokeAsync("AutoColumn", new { traits = mentalAttributes, column = NUM_MAIN_COLS, startRow = currentRow }))
-
-        @{ currentRow += Utils.Max(physicalAttributes.Length, socialAttributes.Length, mentalAttributes.Length); }
-
-        @(await Component.InvokeAsync("AutoHeader", new { columns = NUM_MAIN_COLS, row = currentRow, headerLevel = 2, headerText = "Skills" }))
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = mainContentColumnWidth, row = currentRow, headerLevel = 2, headerText = "Attributes" }))
 
         @{
             currentRow++;
 
-            Trait[] physicalSkills = Utils.VisibleOnly(model.PhysicalSkills);
-            Trait[] socialSkills = Utils.VisibleOnly(model.SocialSkills);
-            Trait[] mentalSkills = Utils.VisibleOnly(model.MentalSkills);
+            //the subheaders need to be in correct position and tab order, so we track their row separately
+            int attributeSubheaderRow = currentRow;
+
+            currentRow++;
+
+            IEnumerable<Trait> physicalAttributes = model.GetTraits(TraitCategory.Attribute, TraitSubCategory.Physical);
+            IEnumerable<Trait> socialAttributes = model.GetTraits(TraitCategory.Attribute, TraitSubCategory.Mental);
+            IEnumerable<Trait> mentalAttributes = model.GetTraits(TraitCategory.Attribute, TraitSubCategory.Social);
         }
 
-        @(await Component.InvokeAsync("AutoColumn", new { traits = physicalSkills, column = 1, startRow = currentRow }))
-        @(await Component.InvokeAsync("AutoColumn", new { traits = socialSkills, column = (NUM_MAIN_COLS + 1) / 2, startRow = currentRow }))
-        @(await Component.InvokeAsync("AutoColumn", new { traits = mentalSkills, column = NUM_MAIN_COLS, startRow = currentRow }))
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = contentColWidth, row = attributeSubheaderRow, headerLevel = 3, headerText = "Physical" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = physicalAttributes, column = leftColumn, width = contentColWidth, startRow = currentRow }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = midColumn, width = contentColWidth, row = attributeSubheaderRow, headerLevel = 3, headerText = "Social" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = socialAttributes, column = midColumn, width = contentColWidth, startRow = currentRow }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = rightColumn, width = contentColWidth, row = attributeSubheaderRow, headerLevel = 3, headerText = "Mental" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = mentalAttributes, column = rightColumn, width = contentColWidth, startRow = currentRow }))
 
         @{
-            currentRow += Utils.Max(physicalSkills.Length, socialSkills.Length, mentalSkills.Length);
-            Trait[] hiddenPowers = Utils.InvisibleOnly(model.Powers);
-            Trait[] visiblePowers = Utils.VisibleOnly(model.Powers);
-
-            //TODO: Rendering of selection control to add powers
+            currentRow += Utils.Max(physicalAttributes.Count(), socialAttributes.Count(), mentalAttributes.Count());
         }
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = mainContentColumnWidth, row = currentRow, headerLevel = 2, headerText = "Skills" }))
+
+        @{
+            currentRow++;
+
+            //same deal as the attribute headers
+            int skillSubheaderRow = currentRow;
+
+            currentRow++;
+
+            IEnumerable<Trait> physicalSkills = model.GetTraits(TraitCategory.Skill, TraitSubCategory.Physical);
+            IEnumerable<Trait> socialSkills = model.GetTraits(TraitCategory.Skill, TraitSubCategory.Social);
+            IEnumerable<Trait> mentalSkills = model.GetTraits(TraitCategory.Skill, TraitSubCategory.Mental);
+        }
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = contentColWidth, row = skillSubheaderRow, headerLevel = 3, headerText = "Physical" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = physicalSkills, column = leftColumn, width = contentColWidth, startRow = currentRow }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = midColumn, width = contentColWidth, row = skillSubheaderRow, headerLevel = 3, headerText = "Social" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = socialSkills, column = midColumn, width = contentColWidth, startRow = currentRow }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = rightColumn, width = contentColWidth, row = skillSubheaderRow, headerLevel = 3, headerText = "Mental" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = mentalSkills, column = rightColumn, width = contentColWidth, startRow = currentRow }))
+
+        @{
+            currentRow += Utils.Max(physicalSkills.Count(), socialSkills.Count(), mentalSkills.Count());
+        }
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = mainContentColumnWidth, row = currentRow, headerLevel = 2, headerText = "Advantages" }))
+
+        @{
+            currentRow++;
+
+            int advantageSubheaderRow = currentRow;
+
+            currentRow++;
+
+            IEnumerable<Trait> powers = model.GetTraits(TraitCategory.Power, TraitVisibility.Visible);
+            IEnumerable<Trait> specificPowers = model.GetTraits(TraitCategory.SpecificPower);
+
+            int specificPowerRow = currentRow + 1 + powers.Count();
+
+            IEnumerable<Trait> backgrounds = model.GetTraits(TraitCategory.Background);
+
+            int[] vitalStatColumns = new int[] { rightColumn, rightColumn + subColWidth };
+            IEnumerable<Trait> vitalStats = model.GetTraits(TraitCategory.VitalStatistic);
+
+            int vitalStatRows = (vitalStats.Count() / vitalStatColumns.Length) +
+                (
+                    vitalStats.Count() % vitalStatColumns.Length == 0
+                        ? 0
+                        : 1
+                )
+                + 1; //+1 row for the header
+
+            int moralPathRow = currentRow + vitalStatRows;
+
+            //TODO: Need to account separately for Vital Statistics and Morality being in one column - or reformat the page
+            //this may involve ensuring that headers of a certain level are the same size as a rendered Trait
+        }
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = contentColWidth, row = advantageSubheaderRow, headerLevel = 3, headerText = "Powers" }))
+        @(await Component.InvokeAsync("AutoColumn", new { traits = powers, column = leftColumn, width = contentColWidth, startRow = currentRow }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = contentColWidth, row = specificPowerRow, headerLevel = 3, headerText = "Specific Powers" }))
+        @(await Component.InvokeAsync("PickerColumn", new { traits = specificPowers, column = leftColumn, width = contentColWidth, startRow = specificPowerRow + 1 }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = midColumn, width = contentColWidth, row = advantageSubheaderRow, headerLevel = 3, headerText = "Backgrounds" }))
+        @(await Component.InvokeAsync("PickerColumn", new { traits = backgrounds, column = midColumn, width = contentColWidth, startRow = currentRow }))
+
+        @(await Component.InvokeAsync("AutoHeader", new { column = rightColumn, width = contentColWidth, row = advantageSubheaderRow, headerLevel = 3, headerText = "Vital Statistics" }))
+        @(await Component.InvokeAsync("AutoGrid", new { traits = vitalStats, columnIndices = vitalStatColumns, width = contentColWidth, startRow = currentRow }))
 
 
     </div>

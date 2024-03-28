@@ -4,7 +4,16 @@ namespace VampireTheEverythingSheetNoReact.Shared_Files
 {
     public static class Utils
     {
-        public const string ColumnPaddingClass = "p-5";
+        /// <summary>
+        /// The character used to split trait data statements.
+        /// </summary>
+        public const char ChunkSplitter = '\n';
+
+        /// <summary>
+        /// The character used to split trait data statements.
+        /// </summary>
+        public const char MiniChunkSplitter = '|';
+
 
         /// <summary>
         /// Finds the maximum of more than two values, hopefuilly without allocating a new object on the heap.
@@ -66,20 +75,6 @@ namespace VampireTheEverythingSheetNoReact.Shared_Files
             string? trueResult = TryGetString(input);
             result = trueResult ?? "";
             return trueResult != null;
-        }
-
-        public static Trait[] VisibleOnly(IEnumerable<Trait> traits)
-        {
-            return (from trait in traits
-                   where trait.Visible
-                   select trait).ToArray();
-        }
-
-        public static Trait[] InvisibleOnly(IEnumerable<Trait> traits)
-        {
-            return (from trait in traits
-                    where !trait.Visible
-                    select trait).ToArray();
         }
     }
 }

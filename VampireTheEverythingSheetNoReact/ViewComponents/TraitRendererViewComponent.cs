@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VampireTheEverythingSheetNoReact.Models;
+using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
 namespace VampireTheEverythingSheetNoReact.ViewComponents
 {
@@ -7,7 +8,16 @@ namespace VampireTheEverythingSheetNoReact.ViewComponents
     {
         public IViewComponentResult Invoke(Trait trait)
         {
-            return View("TraitRenderer", trait);
+            switch(trait.Type)
+            {
+                case TraitType.FreeTextTrait:
+                    return View("FreeTextTrait", trait);
+                case TraitType.DropdownTrait:
+                    return View("DropdownTrait", trait);
+                case TraitType.IntegerTrait:
+                    return View("IntegerTrait", trait);
+            }
+            return View("Default", trait);
         }
     }
 }

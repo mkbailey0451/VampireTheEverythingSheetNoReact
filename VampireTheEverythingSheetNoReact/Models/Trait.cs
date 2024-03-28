@@ -22,10 +22,12 @@ namespace VampireTheEverythingSheetNoReact.Models
             Type = trait.Type;
             Category = trait.Category;
             SubCategory = trait.SubCategory;
-            Visible = trait.Visible;
 
             _data = trait._data;
             ProcessTraitData(_data);
+
+            //TODO
+            //Value = DefaultValue;
         }
 
         /// <summary>
@@ -40,10 +42,12 @@ namespace VampireTheEverythingSheetNoReact.Models
             Type = template.Type;
             Category = template.Category;
             SubCategory = template.SubCategory;
-            Visible = template.Visible;
 
             _data = template.Data;
             ProcessTraitData(_data);
+
+            //TODO
+            //Value = DefaultValue;
         }
 
         /// <summary>
@@ -75,7 +79,45 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// <summary>
         /// Determines if this trait should be rendered on the UI. (Many traits, such as powers and Backgrounds, are not rendered on the UI unless specifically selected.)
         /// </summary>
-        public bool Visible { get; set; }
+        public TraitVisibility Visible
+        {
+            get
+            {
+                switch (Category)
+                {
+                    case TraitCategory.Power:
+                        return (Value is int pwrVal && pwrVal > 0)
+                            ? TraitVisibility.Visible
+                            : TraitVisibility.Hidden;
+                    case TraitCategory.SpecificPower:
+                        if(Value is bool specificVal && specificVal )
+                        {
+                            return TraitVisibility.Visible;
+                        }
+                        if(
+                            PowerLevel == null || 
+                            (
+                                _character.TryGetTraitValue(MainTrait ?? "", out int mainTraitVal) && 
+                                mainTraitVal >= PowerLevel - 1
+                            )
+                          )
+                        {
+                            return TraitVisibility.Selectable;
+                        }
+                        return TraitVisibility.Hidden;
+                    case TraitCategory.Background:
+                        return (Value is int backVal && backVal > 0)
+                            ? TraitVisibility.Visible
+                            : TraitVisibility.Selectable;
+                    case TraitCategory.MeritFlaw:
+                    case TraitCategory.Weapon:
+                        return (Value is bool boolVal && boolVal)
+                            ? TraitVisibility.Visible
+                            : TraitVisibility.Selectable;
+                    default: return TraitVisibility.Visible;
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the "display" value of the object, which is used for dropdowns with derived values and things like that. Contrasted with Value, 
@@ -162,6 +204,11 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public bool TryAssign(object newValue)
         {
+            if(newValue == null)
+            {
+                return false;
+            }
+
             int min = MinValue,
                 max = MaxValue;
 
@@ -207,6 +254,18 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
         string? _maxValue;
+
+        /// <summary>
+        /// The default value of this Trait, or the empty string if there is no sensible default. This can always be safely passed to TryAssign or assigned to Value to "reset" the Trait.
+        /// </summary>
+        public object? DefaultValue
+        {
+            get
+            {
+                //TODO
+                return "";
+            }
+        }
 
         public int? PowerLevel { get; private set; } = null; //TODO: Not sure if this is the best implementation
 
@@ -264,6 +323,8 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         private Character _character;
 
+        public string? MainTrait { get; private set; }
+
         /// <summary>
         /// Every key in this Dictionary is the "dummy" name of an option (stored in PossibleValues) whose actual value changes based on the 
         /// value of some variable stored on the Character. The associated value is the name of the variable. (For example, the Breed of an animal-form
@@ -292,9 +353,9 @@ namespace VampireTheEverythingSheetNoReact.Models
                 yield break;
             }
 
-            foreach (string bigToken in traitData.Split('\n'))
+            foreach (string bigToken in traitData.Split(Utils.ChunkSplitter))
             {
-                yield return bigToken.Split('|');
+                yield return bigToken.Split(Utils.MiniChunkSplitter);
             }
         }
 
@@ -353,7 +414,8 @@ namespace VampireTheEverythingSheetNoReact.Models
                             : Name;
                         break;
                     case VtEKeywords.SubTrait:
-                        _character.RegisterSubTrait(tokens[1], this);
+                        MainTrait = tokens[1];
+                        _character.RegisterSubTrait(MainTrait, this);
                         break;
                     case VtEKeywords.PowerLevel:
                         PowerLevel = tokens.Length > 1

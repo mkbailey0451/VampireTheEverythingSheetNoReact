@@ -1,0 +1,11 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@model Trait
+
+@{
+    //TODO: Text box size
+    string controlID = "trait-freetext-" + Model.UniqueID;
+    <div class="d-flex justify-content-between">
+        <label for="@(controlID)">@(Model.Name)</label>
+        <input type="text" id="@(controlID)" class="align-self-end" />
+    </div>
+}

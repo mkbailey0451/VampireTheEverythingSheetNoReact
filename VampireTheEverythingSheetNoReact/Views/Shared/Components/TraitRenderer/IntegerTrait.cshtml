@@ -1,0 +1,27 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@model Trait
+
+@{
+    //TODO: Text box size
+    string controlID = "trait-integer-" + Model.UniqueID;
+    int val = Math.Max(Utils.TryGetInt(Model.Value) ?? 0, Utils.TryGetInt(Model.MinValue) ?? 0);
+    int maxVal = Model.MaxValue;
+    //TODO: Events, prettiness
+    <div class="d-flex justify-content-between">
+        <label for="@(controlID)">@(Model.Name)</label>
+        <div tabindex="-1" id="@(controlID)" class="align-self-end">
+            <div class="visually-hidden">Current value is @(val). Press the plus key to increase the value. Press the minus key to decrease the value.</div>
+            <div role="presentation">
+                @for (int x = 1; x <= maxVal; x++)
+                {
+                    bool filled = x <= val;
+                    <span data-index="@(x)" data-filled="@(filled.ToString())">@Html.Raw(
+                            filled
+                                ? "\u2B24"
+                                : "\u25EF"
+                    )</span>
+                }
+            </div>
+        </div>
+    </div>
+}

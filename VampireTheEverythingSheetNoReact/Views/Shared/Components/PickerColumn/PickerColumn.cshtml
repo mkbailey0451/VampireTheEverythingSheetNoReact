@@ -1,0 +1,21 @@
+﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+@{
+    IEnumerable<Trait> visibleTraits = ViewData["VisibleTraits"] as IEnumerable<Trait> ?? [];
+    IEnumerable<Trait> pickableTraits = ViewData["PickableTraits"] as IEnumerable<Trait> ?? [];
+    int column = ViewData["Column"] as int? ?? 1;
+    int width = ViewData["Width"] as int? ?? 1;
+    int row = ViewData["StartRow"] as int? ?? 1;
+}
+
+@(await Component.InvokeAsync("AutoColumn", new { traits = visibleTraits, column = column, row = row }))
+
+@{ row += visibleTraits.Count(); }
+
+@(await Component.InvokeAsync("GridElement", new
+{
+    contents = Component.InvokeAsync("TraitAdder", pickableTraits),
+    column = column,
+    row = row,
+    width = width,
+    height = 1
+}))

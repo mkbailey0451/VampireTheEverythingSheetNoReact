@@ -8,7 +8,7 @@
     int height = ViewData["Height"] as int? ?? 1;
 }
 
-<div class=" @(Utils.ColumnPaddingClass)" style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row-start: @(row); grid-row-end: @(row + height);">
+<div class=" text-start " style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row-start: @(row); grid-row-end: @(row + height);">
     @if(contents != null)
     {
         @(await contents);

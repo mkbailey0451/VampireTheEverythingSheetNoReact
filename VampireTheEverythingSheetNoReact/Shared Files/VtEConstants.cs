@@ -97,7 +97,7 @@
             DropdownTrait = 1,
 
             /// <summary>
-            /// An IntegerTrsit has a numeric value which the user can select by clicking on dots or through keyboard shortcuts.
+            /// An IntegerTrait has a numeric value which the user can select by clicking on dots or through keyboard shortcuts.
             /// </summary>
             IntegerTrait = 2,
 
@@ -203,6 +203,13 @@
             /// </summary>
             SelectableWeapon = 10,
         };
+
+        public enum TraitVisibility
+        {
+            Visible = 0,
+            Selectable = 1,
+            Hidden = 2
+        }
 
         /// <summary>
         /// This enum describes the method by which a trait's value is determined.

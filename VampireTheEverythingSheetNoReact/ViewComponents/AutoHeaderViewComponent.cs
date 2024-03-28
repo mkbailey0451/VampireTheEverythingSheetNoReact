@@ -4,9 +4,10 @@ namespace VampireTheEverythingSheetNoReact.ViewComponents
 {
     public class AutoHeaderViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke(int columns, int row, int headerLevel, string headerText)
+        public IViewComponentResult Invoke(int column, int width, int row, int headerLevel, string headerText)
         {
-            ViewData["Columns"] = columns;
+            ViewData["Column"] = column;
+            ViewData["Width"] = width;
             ViewData["Row"] = row;
             ViewData["HeaderLevel"] = headerLevel;
             ViewData["HeaderText"] = headerText;

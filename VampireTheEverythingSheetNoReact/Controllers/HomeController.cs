@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using VampireTheEverythingSheetNoReact.Models;
 
@@ -22,7 +23,7 @@ namespace VampireTheEverythingSheetNoReact.Controllers
             ViewData["CharacterModel"] =
                 string.IsNullOrEmpty(savedData)
                     ? new("testChar")
-                    : Newtonsoft.Json.JsonConvert.DeserializeObject<Character>(savedData);
+                    : JsonConvert.DeserializeObject<Character>(savedData);
 
             return View();
         }
