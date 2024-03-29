@@ -22,6 +22,15 @@ namespace VampireTheEverythingSheetNoReact.Models
             {
                 AddTemplate(template);
             }
+
+            foreach (Trait trait in _traits.Values)
+            {
+                if (trait.Name == "Name")
+                {
+                    _nameTrait = trait;
+                    break;
+                }
+            }
         }
 
         public Character(string uniqueID, Character character) : this(uniqueID, character._templateKeys) { }
@@ -35,21 +44,26 @@ namespace VampireTheEverythingSheetNoReact.Models
                     return "Vampire: The Everything";
                 }
 
-                switch(_templateKeys.First())
+                return _templateKeys.First() switch
                 {
-                    case TemplateKey.Mortal:
-                        return "Vampire: The Everything";
-                    case TemplateKey.Kindred:
-                        return "Vampire: The Masquerade";
-                    case TemplateKey.Kalebite:
-                        return "Werewolf: The Hunt";
-                    case TemplateKey.Fae:
-                        return "Changeling: The Journey";
-                    case TemplateKey.Mage:
-                        return "Mage: The Illumination";
-                }
+                    TemplateKey.Mortal => "Vampire: The Everything",
+                    TemplateKey.Kindred => "Vampire: The Masquerade",
+                    TemplateKey.Kalebite => "Werewolf: The Hunt",
+                    TemplateKey.Fae => "Changeling: The Journey",
+                    TemplateKey.Mage => "Mage: The Illumination",
+                    _ => "Vampire: The Everything",
+                };
+            }
+        }
 
-                return "Vampire: The Everything";
+        public string Name
+        {
+            get
+            {
+                return 
+                    _nameTrait == null
+                        ? ""
+                        : _nameTrait.DisplayValue;
             }
         }
 
@@ -85,9 +99,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             {
                 return;
             }
-            _traits[traitID] = new Trait(this, TraitInfo.AllTraitInfo[traitID]);
-            _readonlyTraitsByID = null;
-            _readonlyTraitsByName = null;
+            _traits[traitID] = new Trait(this, TraitTemplate.AllTraitTemplates[traitID]);
         }
 
         public void RemoveTrait(int traitID)
@@ -100,8 +112,6 @@ namespace VampireTheEverythingSheetNoReact.Models
             //We have to remove the trait from the main list of traits, the variable registry, and the subtrait registry
 
             _traits.Remove(traitID);
-            _readonlyTraitsByID = null;
-            _readonlyTraitsByName = null;
 
             foreach (string key in _variables.Keys)
             {
@@ -109,11 +119,6 @@ namespace VampireTheEverythingSheetNoReact.Models
                 {
                     _variables.Remove(key);
                 }
-            }
-
-            foreach (HashSet<int> subTraits in _subTraitRegistry.Values)
-            {
-                subTraits.Remove(traitID);
             }
 
             //TODO: Is this everything?
@@ -132,6 +137,7 @@ namespace VampireTheEverythingSheetNoReact.Models
 
             foreach (TemplateKey templateKey in _templateKeys.Union([TemplateKey.Mortal]))
             {
+                //TODO: Try to make this a regular prop again after we fix the weird problem
                 if (CharacterTemplate.AllCharacterTemplates.TryGetValue(templateKey, out CharacterTemplate? template))
                 {
                     keepTraits.UnionWith(template.TraitIDs);
@@ -148,19 +154,6 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
 
-        private static readonly ReadOnlyDictionary<string, List<int>> _traitIDsByName = FakeDatabase.GetDatabase().GetTraitIDsByName();
-
-
-        public object? GetTraitValue(string? traitName)
-        {
-            if(traitName == null || !_traitIDsByName.TryGetValue(traitName, out List<int>? traitIDs))
-            {
-                return null;
-            }
-
-            return GetTraitValue(traitIDs[0]);
-        }
-
         public object? GetTraitValue(int? traitID)
         {
             if(traitID == null || !_traits.TryGetValue((int)traitID, out Trait? trait))
@@ -171,18 +164,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             return trait.Value;
         }
 
-        public bool TryGetTraitValue<T>(string traitName, out T? value)
-        {
-            if (GetTraitValue(traitName) is T t)
-            {
-                value = t;
-                return true;
-            }
-            value = default;
-            return false;
-        }
-
-        public bool TryGetTraitValue<T>(int traitID, out T? value)
+        public bool TryGetTraitValue<T>(int? traitID, out T? value)
         {
             if (GetTraitValue(traitID) is T t)
             {
@@ -198,6 +180,8 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// This is done this way, rather than referencing the Trait directly, because it makes tracking their addition and removal easier.
         /// </summary>
         private readonly Dictionary<string, int> _variables = [];
+
+        private readonly Trait? _nameTrait; //TODO: May work better as a variable
 
         /// <summary>
         /// A set of reserved variables that have special behavior in the system, and therefore are hardcoded on the backend.
@@ -275,37 +259,21 @@ namespace VampireTheEverythingSheetNoReact.Models
             return false;
         }
 
-        /// <summary>
-        /// A mapping of subtrait names to the sets of unique trait IDs corresponding to those traits.
-        /// Much like with _variables, we do this to make it easier to track the addition and removal of such Traits.
-        /// </summary>
-        private readonly Dictionary<string, HashSet<int>> _subTraitRegistry = [];
-
-        public int GetMaxSubTrait(string mainTrait)
+        public int GetMaxSubTrait(IEnumerable<int> subTraitIDs)
         {
-            if (!_subTraitRegistry.TryGetValue(mainTrait, out var subTraits))
-            {
-                throw new ArgumentException("Unrecognized main trait " + mainTrait + " in CountSubTraits.");
-            }
-
             return
             (
-                from traitID in subTraits
+                from traitID in subTraitIDs
                 select Utils.TryGetInt(_traits[traitID].Value) ?? int.MinValue
             ).Max();
         }
 
-        public int CountSubTraits(string mainTrait)
+        public int CountSubTraits(IEnumerable<int> subtraitIDs)
         {
             int count = 0;
 
-            if (!_subTraitRegistry.TryGetValue(mainTrait, out HashSet<int>? subTraits))
-            {
-                throw new ArgumentException("Unrecognized main trait " + mainTrait + " in CountSubTraits.");
-            }
-
             //we only want to return the count of selected subtraits (or in other words, traits with a "truthy" kind of value)
-            foreach (int traitID in subTraits)
+            foreach (int traitID in subtraitIDs)
             {
                 object val = _traits[traitID].Value;
 
@@ -358,64 +326,9 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
 
-        public void RegisterSubTrait(string mainTrait, Trait subTrait)
-        {
-            if (_subTraitRegistry.TryGetValue(mainTrait, out var subTraits))
-            {
-                subTraits.Add(subTrait.UniqueID);
-                return;
-            }
-            _subTraitRegistry[mainTrait] = [subTrait.UniqueID];
-        }
-
         public string UniqueID { get; set; }
 
-        private readonly SortedDictionary<int, Trait> _traits = [];
-
-        private ReadOnlyDictionary<int, Trait>? _readonlyTraitsByID = null;
-        public ReadOnlyDictionary<int, Trait> TraitsByID
-        {
-            get
-            {
-                return _readonlyTraitsByID ??= new(_traits);
-            }
-        }
-
         //TODO: Get rid of ever trying to reference traits purely by name
-        private ReadOnlyDictionary<string, ReadOnlyCollection<Trait>>? _readonlyTraitsByName = null;
-        public ReadOnlyDictionary<string, ReadOnlyCollection<Trait>> TraitsByName
-        {
-            get
-            {
-                if(_readonlyTraitsByName == null)
-                {
-                    //this is honestly probably excessive, but we *are* giving access to private data here
-                    Dictionary<string,List<Trait>> buildDictionary = new(_traits.Count);
-                    foreach(Trait trait in _traits.Values)
-                    {
-                        if(buildDictionary.TryGetValue(trait.Name, out List<Trait>? traitsByName))
-                        {
-                            traitsByName.Add(trait);
-                        }
-                        else
-                        {
-                            buildDictionary[trait.Name] = [trait];
-                        }
-                    }
-
-                    Dictionary<string, ReadOnlyCollection<Trait>> buildReadOnlyLists = new(buildDictionary.Keys.Count);
-
-                    foreach(string name in buildDictionary.Keys)
-                    {
-                        buildReadOnlyLists[name] = new(buildDictionary[name]);
-                    }
-
-                    _readonlyTraitsByName = new(buildReadOnlyLists);
-                }
-
-                return _readonlyTraitsByName;
-            }
-        }
 
         /// <summary>
         /// Returns an IEnumerable containing all Traits belonging to the specified TraitCategory.
@@ -424,6 +337,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         {
             //There's two ways to do this - the LINQ way and the foreach-if way - and I'm not sure which I like better or which performs better.
             //I decided to mix it up for the demo project, as much to demonstrate that I can do both as anything else.
+            //The LINQ way is definitely more compact, though.
             foreach (Trait trait in _traits.Values)
             {
                 if (trait.Category == category)
@@ -452,8 +366,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public IEnumerable<Trait> GetTraits(TraitCategory category, TraitSubCategory sub)
         {
-            //This is definitely more compact.
-            //Also, we can't memoize these, unless we want to take responsibility for updating the memoized data every time the templates change, which kind of defeats the point.
+            //We can't memoize these, unless we want to take responsibility for updating the memoized data every time the templates change, which kind of defeats the point.
             return
                 from trait in _traits.Values
                 where trait.Category == category
@@ -461,21 +374,20 @@ namespace VampireTheEverythingSheetNoReact.Models
                 select trait;
         }
 
-
         /// <summary>
         /// Returns an IEnumerable containing all Traits belonging to the specified TraitCategory and TraitSubCategory.
         /// </summary>
         public IEnumerable<Trait> GetTraits(TraitCategory category, TraitSubCategory sub, TraitVisibility visible)
         {
-            //This is definitely more compact.
-            //Also, we can't memoize these, unless we want to take responsibility for updating the memoized data every time the templates change, which kind of defeats the point.
             return
                 from trait in _traits.Values
                 where trait.Category == category
                     && trait.SubCategory == sub
-                    && trait.Visible == visible //If I'm reading the docs correctly, the underlying SortedDictionary eliminates the need for orderby.
+                    && trait.Visible == visible
                 select trait;
         }
+
+        private readonly SortedDictionary<int, Trait> _traits = [];
 
         private object? GetReservedVariable(string variableName)
         {

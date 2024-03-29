@@ -1,16 +1,18 @@
 ﻿@using VampireTheEverythingSheetNoReact.Shared_Files
 @using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants
 @{
-    Character? model = ViewData["CharacterModel"] as Character;
+    Character? character = ViewData["CharacterModel"] as Character;
 
-    if (model == null)
+    if (character == null)
     {
         @:<div class="text-center">No character data was retrieved. Please try again later.</div>
         ViewData["Title"] = "";
         return;
     }
 
-    if (model.TryGetTraitValue("Name", out string? charName))
+    string charName = character.Name;
+
+    if (!string.IsNullOrEmpty(charName))
     {
         ViewData["Title"] = charName + " - ";
     }
@@ -48,12 +50,12 @@
 
     int currentRow = 1;
 
-    IEnumerable<Trait> topTextTraits = model.GetTraits(TraitCategory.TopText);
+    IEnumerable<Trait> topTextTraits = character.GetTraits(TraitCategory.TopText);
 
     //TODO:there has to be a better way of determining currentRow than what we're doing. Maybe using model objects we can pass by reference and get back RowsUsed or something?
     //TODO: Some or all of this style may be classable
     <div class="d-grid text-center" style="grid-template-columns: repeat(@(realCols), minmax(0, 1fr)) !important; grid-auto-rows: max-content;">
-        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = mainContentColumnWidth, row = currentRow, headerLevel = 1, headerText = model.GameTitle }))
+        @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = mainContentColumnWidth, row = currentRow, headerLevel = 1, headerText = character.GameTitle }))
 
         @{ currentRow++; }
 
@@ -71,9 +73,9 @@
 
             currentRow++;
 
-            IEnumerable<Trait> physicalAttributes = model.GetTraits(TraitCategory.Attribute, TraitSubCategory.Physical);
-            IEnumerable<Trait> socialAttributes = model.GetTraits(TraitCategory.Attribute, TraitSubCategory.Mental);
-            IEnumerable<Trait> mentalAttributes = model.GetTraits(TraitCategory.Attribute, TraitSubCategory.Social);
+            IEnumerable<Trait> physicalAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Physical);
+            IEnumerable<Trait> socialAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Mental);
+            IEnumerable<Trait> mentalAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Social);
         }
 
         @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = contentColWidth, row = attributeSubheaderRow, headerLevel = 3, headerText = "Physical" }))
@@ -99,9 +101,9 @@
 
             currentRow++;
 
-            IEnumerable<Trait> physicalSkills = model.GetTraits(TraitCategory.Skill, TraitSubCategory.Physical);
-            IEnumerable<Trait> socialSkills = model.GetTraits(TraitCategory.Skill, TraitSubCategory.Social);
-            IEnumerable<Trait> mentalSkills = model.GetTraits(TraitCategory.Skill, TraitSubCategory.Mental);
+            IEnumerable<Trait> physicalSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Physical);
+            IEnumerable<Trait> socialSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Social);
+            IEnumerable<Trait> mentalSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Mental);
         }
 
         @(await Component.InvokeAsync("AutoHeader", new { column = leftColumn, width = contentColWidth, row = skillSubheaderRow, headerLevel = 3, headerText = "Physical" }))
@@ -126,15 +128,15 @@
 
             currentRow++;
 
-            IEnumerable<Trait> powers = model.GetTraits(TraitCategory.Power, TraitVisibility.Visible);
-            IEnumerable<Trait> specificPowers = model.GetTraits(TraitCategory.SpecificPower);
+            IEnumerable<Trait> powers = character.GetTraits(TraitCategory.Power, TraitVisibility.Visible);
+            IEnumerable<Trait> specificPowers = character.GetTraits(TraitCategory.SpecificPower);
 
             int specificPowerRow = currentRow + 1 + powers.Count();
 
-            IEnumerable<Trait> backgrounds = model.GetTraits(TraitCategory.Background);
+            IEnumerable<Trait> backgrounds = character.GetTraits(TraitCategory.Background);
 
             int[] vitalStatColumns = new int[] { rightColumn, rightColumn + subColWidth };
-            IEnumerable<Trait> vitalStats = model.GetTraits(TraitCategory.VitalStatistic);
+            IEnumerable<Trait> vitalStats = character.GetTraits(TraitCategory.VitalStatistic);
 
             int vitalStatRows = (vitalStats.Count() / vitalStatColumns.Length) +
                 (

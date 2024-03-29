@@ -1,11 +1,27 @@
 ﻿@using VampireTheEverythingSheetNoReact.Shared_Files
 @model IEnumerable<Trait>
 @{
-    IEnumerable<Trait> traits = Model;
-    string traitTypeName = traits.Count() > 0
-        ? " " + traits.First().Category.ToString()
+    Dictionary<string, IEnumerable<Trait>> groupedTraits =
+        new(from trait in Model
+            group trait by trait.MainTrait into traitGroup
+            select new KeyValuePair<string, IEnumerable<Trait>>
+    (
+        traitGroup.First().MainTrait == null
+            ? ""
+            : TraitTemplate.AllTraitTemplates[traitGroup.First().MainTrait ?? 0].Name,
+        traitGroup
+    ));
+
+
+    string traitTypeName = Model.Any()
+        ? " " + Model.First().Category.ToString()
         : "";
     string controlId = "traitAdder-" + traitTypeName;
+    if (traitTypeName == "SpecificPower")
+    {
+        traitTypeName = "Specific Power";
+    }
+
 
     //TODO the button should do something
 
@@ -14,9 +30,16 @@
         <div class="align-self-end">
             <select id="@(controlId)">
                 <option value="">Add...</option>
-                @foreach (Trait trait in traits)
+                @foreach (string mainTrait in groupedTraits.Keys)
                 {
-                    <option value="@(trait.UniqueID)">@(trait.Name)</option>
+                    @if(!string.IsNullOrEmpty(mainTrait))
+                    {
+                        <option value="">-- @(mainTrait) --</option>
+                    }
+                    @foreach (Trait trait in groupedTraits[mainTrait])
+                    {
+                        <option value="@(trait.UniqueID)">@(trait.Name)</option>
+                    }
                 }
             </select>
             <button data-control="@(controlId)">Add <span class="visually-hidden">@(traitTypeName)</span></button>

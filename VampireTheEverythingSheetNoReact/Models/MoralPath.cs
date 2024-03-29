@@ -50,7 +50,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         private static ReadOnlyDictionary<string, MoralPath> GetAllPaths()
         {
             Dictionary<string, MoralPath> output = [];
-            foreach (DataRow row in FakeDatabase.GetDatabase().GetPathData().Rows)
+            foreach (DataRow row in FakeDatabase.GetDatabase().GetPathData())
             {
                 output[Utils.TryGetString(row["PATH_NAME"], "")] = new MoralPath(row);
             }

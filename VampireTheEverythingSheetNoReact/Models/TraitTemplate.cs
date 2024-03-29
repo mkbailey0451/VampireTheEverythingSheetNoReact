@@ -7,19 +7,19 @@ using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 namespace VampireTheEverythingSheetNoReact.Models
 {
     /// <summary>
-    /// The TraitInfo class contains information on a specific Trait that can then be used to create a concrete example of that Trait 
+    /// The TraitTemplate class contains information on a specific Trait that can then be used to create a concrete example of that Trait 
     /// to be associated with a given Character. In other words, a specific character's Strength trait may be thought of as an "instance" of 
-    /// the "class" represented by the TraitInfo instance corresponding to Strength traits in general. (These are both instances of separate
+    /// the "class" represented by the TraitTemplate instance corresponding to Strength traits in general. (These are both instances of separate
     /// classes in C#, but in the internal logic of the Storyteller System, the relation holds.)
     /// 
     /// This makes it easier to define character templates which can easily be applied to or removed from characters.
     /// </summary>
-    public class TraitInfo
+    public class TraitTemplate
     {
         /// <summary>
         /// A complete listing of all trait information, keyed on the trait ID.
         /// </summary>
-        public static ReadOnlyDictionary<int, TraitInfo> AllTraitInfo { get; } = GetAllTraitInfo();
+        public static ReadOnlyDictionary<int, TraitTemplate> AllTraitTemplates { get; private set; }
 
         /// <summary>
         /// The trait ID of this Trait. Each different Trait has a unique ID.
@@ -54,24 +54,39 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public string Data { get; private set; }
 
-        private static ReadOnlyDictionary<int, TraitInfo> GetAllTraitInfo()
+        public IEnumerable<int> SubTraits
         {
-            SortedDictionary<int, TraitInfo> allTraits = [];
-            foreach (DataRow row in FakeDatabase.GetDatabase().GetTraitData().Rows)
+            get
             {
-                TraitInfo template = new(row);
+                return from traitID in _subtraits select traitID;
+            }
+        }
+
+        static TraitTemplate()
+        {
+            AllTraitTemplates = GetAllTraitTemplates();
+        }
+
+        private readonly SortedSet<int> _subtraits;
+
+        private static ReadOnlyDictionary<int, TraitTemplate> GetAllTraitTemplates()
+        {
+            SortedDictionary<int, TraitTemplate> allTraits = [];
+            foreach (DataRow row in FakeDatabase.GetDatabase().GetTraitData())
+            {
+                TraitTemplate template = new(row);
                 allTraits[template.UniqueID] = template;
             }
-            return new ReadOnlyDictionary<int, TraitInfo>(allTraits);
+            return new ReadOnlyDictionary<int, TraitTemplate>(allTraits);
         }
 
         private static ReadOnlyDictionary<string, List<int>> GetAllTraitIDsByName()
         {
             SortedDictionary<string, List<int>> allTraits = [];
 
-            foreach(int traitID in AllTraitInfo.Keys)
+            foreach(int traitID in AllTraitTemplates.Keys)
             {
-                string name = AllTraitInfo[traitID].Name;
+                string name = AllTraitTemplates[traitID].Name;
                 if(allTraits.TryGetValue(name, out List<int>? list))
                 {
                     list.Add(traitID);
@@ -85,7 +100,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             return new(allTraits);
         }
 
-        private TraitInfo(DataRow row)
+        private TraitTemplate(DataRow row)
         {
             UniqueID = Utils.TryGetInt(row["TRAIT_ID"], -1);
             Name = Utils.TryGetString(row["TRAIT_NAME"], "");
@@ -94,6 +109,12 @@ namespace VampireTheEverythingSheetNoReact.Models
             SubCategory = (TraitSubCategory)Utils.TryGetInt(row["TRAIT_SUBCATEGORY"], 0);
 
             Data = Utils.TryGetString(row["TRAIT_DATA"], "");
+
+            _subtraits = new(
+                    from idString in Utils.TryGetString(row["SUBTRAITS"], "").Split(Utils.MiniChunkSplitter)
+                    where !string.IsNullOrEmpty(idString)
+                    select int.Parse(idString)
+                );
         }
     }
 }

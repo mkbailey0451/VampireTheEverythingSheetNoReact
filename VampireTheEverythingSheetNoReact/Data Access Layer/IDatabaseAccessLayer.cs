@@ -13,19 +13,24 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         /// <summary>
         /// Returns a DataTable representing the TRAIT table in the database.
         /// </summary>
-        public DataTable GetTraitData();
+        public IEnumerable<DataRow> GetTraitData();
 
         /// <summary>
         /// Returns a DataTable representing the TRAIT table in the database.
         /// </summary>
-        public ReadOnlyDictionary<string, List<int>> GetTraitIDsByName();
+        public ReadOnlyDictionary<string, SortedSet<int>> GetTraitIDsByName();
+
+        /// <summary>
+        /// Returns a DataTable representing all character templates in the database.
+        /// </summary>
+        public IEnumerable<DataRow> GetCharacterTemplateData();
 
         /// <summary>
         /// Returns a DataTable representing the mapping of character templates to traits in the database.
         /// </summary>
-        public DataTable GetCharacterTemplateData();
+        public IEnumerable<DataRow> GetCharacterTemplateXTraitData();
 
-        public DataTable GetPathData();
+        public IEnumerable<DataRow> GetPathData();
 
     }
 }

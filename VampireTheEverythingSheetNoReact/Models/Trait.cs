@@ -22,6 +22,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             Type = trait.Type;
             Category = trait.Category;
             SubCategory = trait.SubCategory;
+            SubTraits = new(trait.SubTraits);
 
             _data = trait._data;
             ProcessTraitData(_data);
@@ -33,7 +34,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// <summary>
         /// Creates a Trait belonging to the supplied Character based on the supplied TraitTemplate.
         /// </summary>
-        public Trait(Character character, TraitInfo template)
+        public Trait(Character character, TraitTemplate template)
         {
             //there are a lot of possible exceptions here, but the correct thing to do in this case is throw them anyway
             _character = character;
@@ -42,6 +43,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             Type = template.Type;
             Category = template.Category;
             SubCategory = template.SubCategory;
+            SubTraits = new(template.SubTraits);
 
             _data = template.Data;
             ProcessTraitData(_data);
@@ -97,7 +99,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                         if(
                             PowerLevel == null || 
                             (
-                                _character.TryGetTraitValue(MainTrait ?? "", out int mainTraitVal) && 
+                                _character.TryGetTraitValue(MainTrait, out int mainTraitVal) && 
                                 mainTraitVal >= PowerLevel - 1
                             )
                           )
@@ -183,9 +185,9 @@ namespace VampireTheEverythingSheetNoReact.Models
                         }
                         return sum;
                     case TraitValueDerivation.MainTraitMax:
-                        return _character.GetMaxSubTrait((string)_val);
+                        return _character.GetMaxSubTrait(SubTraits);
                     case TraitValueDerivation.MainTraitCount:
-                        return _character.CountSubTraits((string)_val);
+                        return _character.CountSubTraits(SubTraits);
                     //TODO
                     default:
                         throw new NotImplementedException();
@@ -321,9 +323,11 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// <summary>
         /// The Character to whom this Trait belongs.
         /// </summary>
-        private Character _character;
+        public readonly Character _character;
 
-        public string? MainTrait { get; private set; }
+        public int? MainTrait { get; private set; }
+
+        public SortedSet<int> SubTraits { get; private set; }
 
         /// <summary>
         /// Every key in this Dictionary is the "dummy" name of an option (stored in PossibleValues) whose actual value changes based on the 
@@ -414,8 +418,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                             : Name;
                         break;
                     case VtEKeywords.SubTrait:
-                        MainTrait = tokens[1];
-                        _character.RegisterSubTrait(MainTrait, this);
+                        MainTrait = int.Parse(tokens[1]);
                         break;
                     case VtEKeywords.PowerLevel:
                         PowerLevel = tokens.Length > 1
