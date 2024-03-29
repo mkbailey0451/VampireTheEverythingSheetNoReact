@@ -1,22 +1,36 @@
-﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+﻿@using VampireTheEverythingSheetNoReact.Models.Component
+@using VampireTheEverythingSheetNoReact.Shared_Files
+@model AutoColumnModel
 @{
-    IEnumerable<Trait> traits = ViewData["Traits"] as IEnumerable<Trait> ?? [];
-    int column = ViewData["Column"] as int? ?? 1;
-    int width = ViewData["Width"] as int? ?? 1;
-    int row = ViewData["StartRow"] as int? ?? 1;
-
-    foreach(Trait trait in traits)
+    if(Model.HeadingLevel > 0 && !string.IsNullOrEmpty(Model.HeadingText))
     {
-        @(
-        await Component.InvokeAsync("GridElement", new
+        AutoHeaderModel autoHeaderModel = new AutoHeaderModel
         {
-            contents = Component.InvokeAsync("TraitRenderer", trait),
-            column = column,
-            row = row,
-            width = width,
-            height = 1
+            Row = Model.Row,
+            Column = Model.Column,
+            Width = Model.Width,
+            HeadingLevel = Model.HeadingLevel,
+            HeadingText = Model.HeadingText
+        };
+        @(await Component.InvokeAsync("AutoHeader", autoHeaderModel))
+        Model.Height = autoHeaderModel.Height;
+    }
+
+    foreach(Trait trait in Model.Traits)
+    {
+        int currentRow = Model.RowEnd;
+        @(
+        await Component.InvokeAsync("GridElement", new GridElementModel
+        {
+            Content = Component.InvokeAsync("TraitRenderer", trait),
+            Column = Model.Column,
+            Row = currentRow,
+            Width = Model.Width,
+            Height = 1
         })
         )
-        row++;
+        currentRow++;
+        //we pass this back (by reference) so the caller knows how big the control is
+        Model.Height = currentRow - Model.Row;
     }
 }

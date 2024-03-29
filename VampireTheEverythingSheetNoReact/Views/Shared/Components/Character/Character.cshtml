@@ -1,0 +1,187 @@
+﻿@using Microsoft.AspNetCore.Html
+@using Microsoft.AspNetCore.Razor.TagHelpers
+@using VampireTheEverythingSheetNoReact.Models.Component
+@using VampireTheEverythingSheetNoReact.Shared_Files
+@using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants
+
+@model Character
+
+@functions
+{
+    IHtmlContent RenderWithHeight<Model>(out int height, string componentName, Model model) where Model : RectangularControlModel
+    {
+        Task<IHtmlContent> task = Component.InvokeAsync(componentName, model);
+        task.Wait();
+        height = model.Height ?? 1;
+        return task.Result;
+    }
+
+    void UpdateRow<Model>(ref int row, string componentName, Model model) where Model : RectangularControlModel
+    {
+        Task<IHtmlContent> task = Component.InvokeAsync(componentName, model);
+        task.Wait();
+        row += model.Height ?? 1;
+        @(task.Result)
+    }
+
+    void UpdateMaxRow<Model>(ref int row, IEnumerable<KeyValuePair<string, Model>> components) where Model : RectangularControlModel
+    {
+        Task<IHtmlContent>[] tasks =
+            (from KeyValuePair<string, Model> component in components
+             select Component.InvokeAsync(component.Key, component.Value)).ToArray();
+
+        Task.WaitAll(tasks);
+
+        row += Utils.Max(from component in components select (component.Value.Height ?? 1));
+
+        foreach (Task<IHtmlContent> task in tasks)
+        {
+            @(task.Result)
+        }
+    }
+}
+
+@{
+    Character character = Model;
+
+    //The number of columns outside the main layout on each side.
+    const int borderWidth = 1;
+
+    //The number of "bumper" columns between each content column.
+    const int bumperWidth = 1;
+
+    //The number of "real" columns, as the user will experience the page. This is a three-column layout, so this nuber is three.
+    const int contentCols = 3;
+
+    //The number of real columns that encompass each "content" column. In other words, the ratio between the width of the content columns and the HTML columns.
+    const int contentColWidth = 11;
+
+    //The number of real columns that encompass a sub-column. Sub-columns are used to create smaller UI elements like vital statistics.
+    const int subColWidth = contentColWidth / 2;
+
+    //The number of actual columns in the grid, including spacing columns and so on.
+    const int realCols =
+        (borderWidth * 2) +
+        (bumperWidth * (contentCols - 1)) +
+        (contentCols * contentColWidth);
+
+    //The number of columns an element should span to encompass the entire width of the layout (minus the borders).
+    const int mainContentColumnWidth = realCols - (borderWidth * 2);
+
+    //The start point of each content column.
+    const int leftColumn = borderWidth + 1;
+    const int midColumn = leftColumn + contentColWidth + bumperWidth;
+    const int rightColumn = midColumn + contentColWidth + bumperWidth;
+
+    int[] columnIndices = new int[] { leftColumn, midColumn, rightColumn };
+
+    int currentRow = 1;
+
+    IEnumerable<Trait> topTextTraits = character.GetTraits(TraitCategory.TopText);
+
+    //TODO:there has to be a better way of determining currentRow than what we're doing. Maybe using model objects we can pass by reference and get back RowsUsed or something?
+    //TODO: Some or all of this style may be classable
+}
+
+
+<div class="d-grid text-center" style="grid-template-columns: repeat(@(realCols), minmax(0, 1fr)) !important; grid-auto-rows: max-content;">
+    
+    @{
+        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 1, HeadingText = character.GameTitle });
+        UpdateRow(ref currentRow, "AutoGrid", new AutoGridModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, ColumnCount = contentCols, BumperWidth = bumperWidth, Traits = topTextTraits });
+        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Attributes" });
+
+        IEnumerable<Trait> physicalAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Physical);
+        IEnumerable<Trait> socialAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Mental);
+        IEnumerable<Trait> mentalAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Social);
+
+        UpdateMaxRow(ref currentRow,
+            new List<KeyValuePair<string, AutoColumnModel>>
+                {
+                    new KeyValuePair<string, AutoColumnModel>("AutoColumn",
+                        new AutoColumnModel { Traits = physicalAttributes, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Physical" } ),
+                    new KeyValuePair<string, AutoColumnModel>("AutoColumn",
+                        new AutoColumnModel { Traits = socialAttributes, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Social" } ),
+                    new KeyValuePair<string, AutoColumnModel>("AutoColumn",
+                        new AutoColumnModel { Traits = mentalAttributes, Column = rightColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Mental" } ),
+                }
+            );
+
+        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Skills" });
+
+        IEnumerable<Trait> physicalSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Physical);
+        IEnumerable<Trait> socialSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Social);
+        IEnumerable<Trait> mentalSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Mental);
+        UpdateMaxRow(ref currentRow,
+        new List<KeyValuePair<string, AutoColumnModel>>
+            {
+                new KeyValuePair<string, AutoColumnModel>("AutoColumn",
+                    new AutoColumnModel { Traits = physicalSkills, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Physical" } ),
+                new KeyValuePair<string, AutoColumnModel>("AutoColumn",
+                    new AutoColumnModel { Traits = socialSkills, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Social" } ),
+                new KeyValuePair<string, AutoColumnModel>("AutoColumn",
+                    new AutoColumnModel { Traits = mentalSkills, Column = rightColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Mental" } ),
+            }
+        );
+
+        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Advantages" });
+
+        //TODO: UpdateRow and stuff from here on, fix graphical issues
+
+        /*
+        * The flow in this section works as such:
+        *
+        * - Powers (but not specific powers) are in the left column.
+        * - Background, progression stats, and Merits and Flaws are in the middle column.
+        * - Vital statistics, Path, Beliefs, and Nature Information are in the right column.
+        *
+        * All of these columns flow independently, and the longest of them determines the row of the next h2.
+        * (We might actually consider if we can flow the specific powers onto the next "page," actually...)
+        */
+
+        currentRow += 1;
+
+        int advantageSubheaderRow = currentRow;
+
+        currentRow += 1;
+
+        IEnumerable<Trait> powers = character.GetTraits(TraitCategory.Power, TraitVisibility.Visible);
+        IEnumerable<Trait> specificPowers = character.GetTraits(TraitCategory.SpecificPower);
+
+        int specificPowerRow = currentRow + 1 + powers.Count();
+
+        IEnumerable<Trait> backgrounds = character.GetTraits(TraitCategory.Background);
+
+        int progressionRow = currentRow + 1;
+
+        int[] vitalStatColumns = new int[] { rightColumn, rightColumn + subColWidth };
+        IEnumerable<Trait> vitalStats = character.GetTraits(TraitCategory.VitalStatistic);
+
+        int vitalStatRows = (vitalStats.Count() / vitalStatColumns.Length) +
+        (
+        vitalStats.Count() % vitalStatColumns.Length == 0
+        ? 0
+        : 1
+        )
+        + 1;
+
+        int moralPathRow = currentRow + vitalStatRows;
+
+        //TODO: Need to account separately for Vital Statistics and Morality being in one column - or reformat the page
+        //this may involve ensuring that headers of a certain level are the same size as a rendered Trait
+    }
+
+    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = contentColWidth, Row = advantageSubheaderRow, HeadingLevel = 3, HeadingText = "Powers" }))
+    @(await Component.InvokeAsync("AutoColumn", new AutoColumnModel { Traits = powers, Column = leftColumn, Width = contentColWidth, Row = currentRow }))
+
+    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = contentColWidth, Row = specificPowerRow, HeadingLevel = 4, HeadingText = "Specific Powers" }))
+    @(await Component.InvokeAsync("PickerColumn", new PickerColumnModel { Traits = specificPowers, Column = leftColumn, Width = contentColWidth, Row = specificPowerRow + 1 }))
+
+    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = midColumn, Width = contentColWidth, Row = advantageSubheaderRow, HeadingLevel = 3, HeadingText = "Backgrounds" }))
+    @(await Component.InvokeAsync("PickerColumn", new PickerColumnModel { Traits = backgrounds, Column = midColumn, Width = contentColWidth, Row = currentRow }))
+
+    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = rightColumn, Width = contentColWidth, Row = advantageSubheaderRow, HeadingLevel = 3, HeadingText = "Vital Statistics" }))
+    @(await Component.InvokeAsync("AutoGrid", new AutoGridModel { Column = rightColumn, Width = contentColWidth, Row = currentRow, ColumnCount = 2, BumperWidth = 1, Traits = vitalStats }))
+
+
+</div>

@@ -1,32 +1,36 @@
-﻿@{
-    int column = ViewData["Column"] as int? ?? 1;
-    int width = ViewData["Width"] as int? ?? 1;
-    int row = ViewData["Row"] as int? ?? 0;
-    int headerLevel = ViewData["HeaderLevel"] as int? ?? 0;
-    string headerText = ViewData["HeaderText"] as string ?? "";
+﻿@using VampireTheEverythingSheetNoReact.Models.Component
+@using VampireTheEverythingSheetNoReact.Shared_Files
+@model AutoHeaderModel
+@{
+    Model.Height = Model.HeadingLevel switch
+    {
+        1 or 2 => 2,
+        3 or 4 or 5 or 6 => 1,
+        _ => 0,
+    };
 }
 
-<div class="text-center justify-content-center" style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row: @(row);">
+<div class="text-center justify-content-center" style=" grid-column-start: @(Model.Column); grid-column-end: @(Model.ColumnEnd); grid-row: @(Model.Row); grid-row-end: @(Model.RowEnd);">
     @{
-        switch (headerLevel)
+        switch (Model.HeadingLevel)
         {
             case 1:
-                <h1>@(headerText)</h1>
+                <h1>@(Model.HeadingText)</h1>
                 break;
             case 2:
-                <h2>@(headerText)</h2>
+                <h2>@(Model.HeadingText)</h2>
                 break;
             case 3:
-                <h3>@(headerText)</h3>
+                <h3>@(Model.HeadingText)</h3>
                 break;
             case 4:
-                <h4>@(headerText)</h4>
+                <h4>@(Model.HeadingText)</h4>
                 break;
             case 5:
-                <h5>@(headerText)</h5>
+                <h5>@(Model.HeadingText)</h5>
                 break;
             case 6:
-                <h6>@(headerText)</h6>
+                <h6>@(Model.HeadingText)</h6>
                 break;
         }
     }

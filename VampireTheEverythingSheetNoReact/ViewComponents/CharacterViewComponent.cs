@@ -3,11 +3,11 @@ using VampireTheEverythingSheetNoReact.Models;
 
 namespace VampireTheEverythingSheetNoReact.ViewComponents
 {
-    public class TraitAdderViewComponent : ViewComponent
+    public class CharacterViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke(IEnumerable<Trait> traits)
+        public IViewComponentResult Invoke(Character model)
         {
-            return View("TraitAdder", traits);
+            return View("Character", model);
         }
     }
 }

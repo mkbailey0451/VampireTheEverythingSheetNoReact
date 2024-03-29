@@ -1,16 +1,7 @@
-﻿@using Microsoft.AspNetCore.Html
+﻿@using VampireTheEverythingSheetNoReact.Models.Component
 @using VampireTheEverythingSheetNoReact.Shared_Files
-@{
-    Task<IHtmlContent>? contents = ViewData["Contents"] as Task<IHtmlContent>;
-    int column = ViewData["Column"] as int? ?? 1;
-    int row = ViewData["Row"] as int? ?? 1;
-    int width = ViewData["Width"] as int? ?? 1;
-    int height = ViewData["Height"] as int? ?? 1;
-}
+@model GridElementModel
 
-<div class="text-start" style=" grid-column-start: @(column); grid-column-end: @(column + width); grid-row-start: @(row); grid-row-end: @(row + height);">
-    @if(contents != null)
-    {
-        @(await contents);
-    }
+<div class="text-start" style=" grid-column-start: @(Model.Column); grid-column-end: @(Model.ColumnEnd); grid-row-start: @(Model.Row); grid-row-end: @(Model.RowEnd);">
+    @(await Model.Content)
 </div>

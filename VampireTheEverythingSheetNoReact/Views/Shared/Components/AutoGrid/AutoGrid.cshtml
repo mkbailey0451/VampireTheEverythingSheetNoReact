@@ -1,41 +1,72 @@
-﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+﻿@using VampireTheEverythingSheetNoReact.Models.Component
+@using VampireTheEverythingSheetNoReact.Shared_Files
+@model AutoGridModel
 @{
-    Trait[] traits = (ViewData["Traits"] as IEnumerable<Trait> ?? []).ToArray();
-    int[] columnIndices = (ViewData["ColumnIndices"] as IEnumerable<int> ?? []).ToArray();
-    int width = ViewData["Width"] as int? ?? 1;
-    int startRow = ViewData["StartRow"] as int? ?? 1;
+    if (Model.ColumnCount < 1)
+    {
+        return;
+    }
 
-    int columnCount = columnIndices.Count();
+    //determine how wide each column in the grid will be - if the model's width is set funny this may not take up all the space
+    int columnWidth = 
+        (
+            Model.Width -
+            (Model.BumperWidth * (Model.ColumnCount - 1))
+        ) / Model.ColumnCount;
+
+
+    //determine where each column in the grid will be
+    int[] columnIndices = new int[Model.ColumnCount];
+
+    //leftmost column is where the control starts
+    columnIndices[0] = Model.Column;
+
+    //successive columns are as far apart as the width of a column plus a bumper
+    for (int x = 1; x < columnIndices.Length; x++)
+    {
+        columnIndices[x] = columnIndices[x - 1] + columnWidth + Model.BumperWidth;
+    }
+
+    Trait[] traits = Model.Traits.ToArray();
 
     //if we have 11 items and 3 rows, then 2 columns will have an extra item - namely the first two
-    int extras = traits.Length % columnCount;
+    int extras = traits.Length % Model.ColumnCount;
+
+    //pass back the height by reference
+    Model.Height =
+        (traits.Length / Model.ColumnCount) +
+        (
+            extras > 0
+                ? 1
+                : 0
+        );
 
     //we track the trait index separately because it saves both processing time and programmer headaches in this case
     int traitIdx = 0;
 
-    for(int col = 0; col < columnCount; col++)
+    //actual rendering logic
+    for (int colIndex = 0; colIndex < Model.ColumnCount; colIndex++)
     {
-        int colRows = (traits.Length / columnCount) +
+        int colRows = (traits.Length / Model.ColumnCount) +
             (
-                col < extras
+                colIndex < extras
                     ? 1
                     : 0
             );
-        for(int row = 0; row < colRows; row++)
+        for(int rowIndex = 0; rowIndex < colRows; rowIndex++)
         {
-            int trueRow = row + startRow;
-            int trueCol = columnIndices[col];
-            //TODO: Actual rendering logic for traits
+            int trueRow = rowIndex + Model.Row;
+            int trueCol = columnIndices[colIndex];
             //TODO: align-self and justify-self in a class, and with sensible values
             <text>
                 @(
-                await Component.InvokeAsync("GridElement", new
+                await Component.InvokeAsync("GridElement", new GridElementModel
                 {
-                    contents = Component.InvokeAsync("TraitRenderer", traits[traitIdx]),
-                    column = trueCol,
-                    row = trueRow,
-                    width = width,
-                    height = 1
+                    Content = Component.InvokeAsync("TraitRenderer", traits[traitIdx]),
+                    Column = trueCol,
+                    Row = trueRow,
+                    Width = columnWidth,
+                    Height = 1
                 })
                 )
             </text>

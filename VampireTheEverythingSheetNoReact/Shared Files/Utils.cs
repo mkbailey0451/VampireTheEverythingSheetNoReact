@@ -16,9 +16,17 @@ namespace VampireTheEverythingSheetNoReact.Shared_Files
 
 
         /// <summary>
-        /// Finds the maximum of more than two values, hopefuilly without allocating a new object on the heap.
+        /// Finds the maximum of more than two values, hopefully without allocating a new object on the heap.
         /// </summary>
         public static int Max(params int[] values)
+        {
+            return values.Max();
+        }
+
+        /// <summary>
+        /// Finds the maximum of more than two values, hopefully without allocating a new object on the heap.
+        /// </summary>
+        public static int Max(IEnumerable<int> values)
         {
             return values.Max();
         }

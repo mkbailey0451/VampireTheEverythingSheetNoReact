@@ -1,21 +1,34 @@
-﻿@using VampireTheEverythingSheetNoReact.Shared_Files
+﻿@using VampireTheEverythingSheetNoReact.Models.Component
+@using VampireTheEverythingSheetNoReact.Shared_Files
+@model PickerColumnModel
+
 @{
-    IEnumerable<Trait> visibleTraits = ViewData["VisibleTraits"] as IEnumerable<Trait> ?? [];
-    IEnumerable<Trait> pickableTraits = ViewData["PickableTraits"] as IEnumerable<Trait> ?? [];
-    int column = ViewData["Column"] as int? ?? 1;
-    int width = ViewData["Width"] as int? ?? 1;
-    int row = ViewData["StartRow"] as int? ?? 1;
+    AutoColumnModel autoColumnModel = new AutoColumnModel
+    {
+        Row = Model.Row,
+        Column = Model.Column,
+        Width = Model.Width,
+        Traits = Model.VisibleTraits
+    };
 }
 
-@(await Component.InvokeAsync("AutoColumn", new { traits = visibleTraits, column = column, row = row }))
+@(await Component.InvokeAsync("AutoColumn", autoColumnModel))
 
-@{ row += visibleTraits.Count(); }
+@{
+    Model.Height = autoColumnModel.Height ?? 0;
 
-@(await Component.InvokeAsync("GridElement", new
-{
-    contents = Component.InvokeAsync("TraitAdder", pickableTraits),
-    column = column,
-    row = row,
-    width = width,
-    height = 1
-}))
+    GridElementModel gridElementModel = new GridElementModel
+    {
+        Row = Model.RowEnd,
+        Column = Model.Column,
+        Width = Model.Width,
+        Height = 1,
+        Content = Component.InvokeAsync("TraitAdder", Model.SelectableTraits)
+    };
+}
+
+@(await Component.InvokeAsync("GridElement", gridElementModel))
+
+@{
+    Model.Height += gridElementModel.Height;
+}
