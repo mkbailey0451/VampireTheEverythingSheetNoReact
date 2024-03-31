@@ -12,6 +12,7 @@
 
 <div class="text-center justify-content-center" style=" grid-column-start: @(Model.Column); grid-column-end: @(Model.ColumnEnd); grid-row: @(Model.Row); grid-row-end: @(Model.RowEnd);">
     @{
+        //we could technically async this but it feels a little excessive
         switch (Model.HeadingLevel)
         {
             case 1:

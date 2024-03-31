@@ -2,7 +2,11 @@
 {
     public abstract class RectangularControlModel
     {
-        public required int Row {  get; set; }
+        protected RectangularControlModel(string componentName) => ViewComponentName = componentName;
+
+        public string ViewComponentName { get; private set; }
+
+        public required int Row { get; set; }
         public required int Column { get; set; }
         //controls generally determine their own height
         public int? Height { get; set; }

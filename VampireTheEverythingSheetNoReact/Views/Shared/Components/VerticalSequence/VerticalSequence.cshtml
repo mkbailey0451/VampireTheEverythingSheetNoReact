@@ -1,0 +1,16 @@
+﻿@using Microsoft.AspNetCore.Html
+@using VampireTheEverythingSheetNoReact.Models.Component
+@using VampireTheEverythingSheetNoReact.Shared_Files
+@using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants
+
+@model VerticalSequenceModel
+
+@{
+    Model.Height = 0;
+    foreach(RectangularControlModel subModel in Model.Contents)
+    {
+        subModel.Row = Model.RowEnd;
+        @(await Component.InvokeAsync(subModel.ViewComponentName, subModel))
+        Model.Height += subModel.Height;
+    }
+}

@@ -8,36 +8,34 @@
 
 @functions
 {
-    IHtmlContent RenderWithHeight<Model>(out int height, string componentName, Model model) where Model : RectangularControlModel
+    void UpdateRow(ref int row, RectangularControlModel model)
     {
-        Task<IHtmlContent> task = Component.InvokeAsync(componentName, model);
-        task.Wait();
-        height = model.Height ?? 1;
-        return task.Result;
-    }
-
-    void UpdateRow<Model>(ref int row, string componentName, Model model) where Model : RectangularControlModel
-    {
-        Task<IHtmlContent> task = Component.InvokeAsync(componentName, model);
+        Task<IHtmlContent> task = Component.InvokeAsync(model.ViewComponentName, model);
         task.Wait();
         row += model.Height ?? 1;
         @(task.Result)
     }
 
-    void UpdateMaxRow<Model>(ref int row, IEnumerable<KeyValuePair<string, Model>> components) where Model : RectangularControlModel
+    //void UpdateMaxRow<Model>(ref int row, IEnumerable<KeyValuePair<string, Model>> components) where Model : RectangularControlModel
+    void UpdateMaxRow(ref int row, params RectangularControlModel[] components)
     {
         Task<IHtmlContent>[] tasks =
-            (from KeyValuePair<string, Model> component in components
-             select Component.InvokeAsync(component.Key, component.Value)).ToArray();
+            (from RectangularControlModel component in components
+             select Component.InvokeAsync(component.ViewComponentName, component)).ToArray();
 
         Task.WaitAll(tasks);
 
-        row += Utils.Max(from component in components select (component.Value.Height ?? 1));
+        row += Utils.Max(from component in components select (component.Height ?? 1));
 
         foreach (Task<IHtmlContent> task in tasks)
         {
             @(task.Result)
         }
+    }
+
+    IEnumerable<Task<IHtmlContent>> RenderMany(IEnumerable<Trait> traits)
+    {
+        return from Trait trait in traits select Component.InvokeAsync("TraitRenderer", trait);
     }
 }
 
@@ -77,7 +75,28 @@
 
     int currentRow = 1;
 
-    IEnumerable<Trait> topTextTraits = character.GetTraits(TraitCategory.TopText);
+    IEnumerable<Task<IHtmlContent>> topTextTraits = RenderMany(character.GetTraits(TraitCategory.TopText));
+
+    IEnumerable<Task<IHtmlContent>> physicalAttributes = RenderMany(character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Physical));
+    IEnumerable<Task<IHtmlContent>> socialAttributes = RenderMany(character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Mental));
+    IEnumerable<Task<IHtmlContent>> mentalAttributes = RenderMany(character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Social));
+
+    IEnumerable<Task<IHtmlContent>> physicalSkills = RenderMany(character.GetTraits(TraitCategory.Skill, TraitSubCategory.Physical));
+    IEnumerable<Task<IHtmlContent>> socialSkills = RenderMany(character.GetTraits(TraitCategory.Skill, TraitSubCategory.Social));
+    IEnumerable<Task<IHtmlContent>> mentalSkills = RenderMany(character.GetTraits(TraitCategory.Skill, TraitSubCategory.Mental));
+
+    IEnumerable<Task<IHtmlContent>> powers = RenderMany(character.GetTraits(TraitCategory.Power, TraitVisibility.Visible));
+
+    IEnumerable<Trait> backgrounds = character.GetTraits(TraitCategory.Background);
+
+    IEnumerable<Task<IHtmlContent>> progressions = RenderMany(character.GetTraits(TraitCategory.Progression));
+
+    IEnumerable<Trait> meritsFlaws = character.GetTraits(TraitCategory.MeritFlaw);
+
+    //we can't render these in advance because the view component needs access to the trait information anyway
+    IEnumerable<Trait> specificPowers = character.GetTraits(TraitCategory.SpecificPower);
+
+    IEnumerable<Task<IHtmlContent>> vitalStats = RenderMany(character.GetTraits(TraitCategory.VitalStatistic));
 
     //TODO:there has to be a better way of determining currentRow than what we're doing. Maybe using model objects we can pass by reference and get back RowsUsed or something?
     //TODO: Some or all of this style may be classable
@@ -87,44 +106,33 @@
 <div class="d-grid text-center" style="grid-template-columns: repeat(@(realCols), minmax(0, 1fr)) !important; grid-auto-rows: max-content;">
     
     @{
-        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 1, HeadingText = character.GameTitle });
-        UpdateRow(ref currentRow, "AutoGrid", new AutoGridModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, ColumnCount = contentCols, BumperWidth = bumperWidth, Traits = topTextTraits });
-        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Attributes" });
-
-        IEnumerable<Trait> physicalAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Physical);
-        IEnumerable<Trait> socialAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Mental);
-        IEnumerable<Trait> mentalAttributes = character.GetTraits(TraitCategory.Attribute, TraitSubCategory.Social);
+        UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 1, HeadingText = character.GameTitle });
+        UpdateRow(ref currentRow, new AutoGridModel
+        {
+            Column = leftColumn,
+            Width = mainContentColumnWidth,
+            Row = currentRow,
+            ColumnCount = contentCols,
+            BumperWidth = bumperWidth,
+            Elements = topTextTraits
+        });
+        UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Attributes" });
 
         UpdateMaxRow(ref currentRow,
-            new List<KeyValuePair<string, AutoColumnModel>>
-                {
-                    new KeyValuePair<string, AutoColumnModel>("AutoColumn",
-                        new AutoColumnModel { Traits = physicalAttributes, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Physical" } ),
-                    new KeyValuePair<string, AutoColumnModel>("AutoColumn",
-                        new AutoColumnModel { Traits = socialAttributes, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Social" } ),
-                    new KeyValuePair<string, AutoColumnModel>("AutoColumn",
-                        new AutoColumnModel { Traits = mentalAttributes, Column = rightColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Mental" } ),
-                }
-            );
-
-        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Skills" });
-
-        IEnumerable<Trait> physicalSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Physical);
-        IEnumerable<Trait> socialSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Social);
-        IEnumerable<Trait> mentalSkills = character.GetTraits(TraitCategory.Skill, TraitSubCategory.Mental);
-        UpdateMaxRow(ref currentRow,
-        new List<KeyValuePair<string, AutoColumnModel>>
-            {
-                new KeyValuePair<string, AutoColumnModel>("AutoColumn",
-                    new AutoColumnModel { Traits = physicalSkills, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Physical" } ),
-                new KeyValuePair<string, AutoColumnModel>("AutoColumn",
-                    new AutoColumnModel { Traits = socialSkills, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Social" } ),
-                new KeyValuePair<string, AutoColumnModel>("AutoColumn",
-                    new AutoColumnModel { Traits = mentalSkills, Column = rightColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Mental" } ),
-            }
+            new AutoColumnModel { Elements = physicalAttributes, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Physical" },
+            new AutoColumnModel { Elements = socialAttributes, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Social" },
+            new AutoColumnModel { Elements = mentalAttributes, Column = rightColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Mental" }
         );
 
-        UpdateRow(ref currentRow, "AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Advantages" });
+        UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Skills" });
+
+        UpdateMaxRow(ref currentRow,
+            new AutoColumnModel { Elements = physicalSkills, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Physical" },
+            new AutoColumnModel { Elements = socialSkills, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Social" },
+            new AutoColumnModel { Elements = mentalSkills, Column = rightColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Mental" }
+        );
+
+        UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Advantages" });
 
         //TODO: UpdateRow and stuff from here on, fix graphical issues
 
@@ -139,49 +147,32 @@
         * (We might actually consider if we can flow the specific powers onto the next "page," actually...)
         */
 
-        currentRow += 1;
-
-        int advantageSubheaderRow = currentRow;
-
-        currentRow += 1;
-
-        IEnumerable<Trait> powers = character.GetTraits(TraitCategory.Power, TraitVisibility.Visible);
-        IEnumerable<Trait> specificPowers = character.GetTraits(TraitCategory.SpecificPower);
-
-        int specificPowerRow = currentRow + 1 + powers.Count();
-
-        IEnumerable<Trait> backgrounds = character.GetTraits(TraitCategory.Background);
-
-        int progressionRow = currentRow + 1;
-
-        int[] vitalStatColumns = new int[] { rightColumn, rightColumn + subColWidth };
-        IEnumerable<Trait> vitalStats = character.GetTraits(TraitCategory.VitalStatistic);
-
-        int vitalStatRows = (vitalStats.Count() / vitalStatColumns.Length) +
-        (
-        vitalStats.Count() % vitalStatColumns.Length == 0
-        ? 0
-        : 1
-        )
-        + 1;
-
-        int moralPathRow = currentRow + vitalStatRows;
+        UpdateMaxRow(ref currentRow,
+            new AutoColumnModel { Elements = powers, Column = leftColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Powers" },
+            new VerticalSequenceModel
+            {
+                Column = midColumn, Width = contentColWidth, Row = currentRow,
+                Contents =
+                [
+                    //TODO: The rows on these don't actually matter. Consider making row an optional field. (Honestly we could refactor so most of the dimensions don't matter...)
+                    new PickerColumnModel { Traits = backgrounds, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Backgrounds" },
+                    new AutoColumnModel { Elements = progressions, Column = midColumn, Width = contentColWidth, Row = currentRow },
+                    new PickerColumnModel { Traits = meritsFlaws, Column = midColumn, Width = contentColWidth, Row = currentRow, HeadingLevel = 3, HeadingText = "Merits and Flaws" }
+                ]
+            },
+            new VerticalSequenceModel
+            {
+                Column = rightColumn, Width = contentColWidth, Row = currentRow,
+                Contents =
+                [
+                    //TODO: The rows on these don't actually matter. Consider making row an optional field. (Honestly we could refactor so most of the dimensions don't matter...)
+                    new AutoGridModel { Column = rightColumn, Width = contentColWidth, Row = currentRow, ColumnCount = 2, BumperWidth = 1, Elements = vitalStats, HeadingLevel = 3, HeadingText = "Vital Statistics" }
+                ]
+            }
+        );
 
         //TODO: Need to account separately for Vital Statistics and Morality being in one column - or reformat the page
         //this may involve ensuring that headers of a certain level are the same size as a rendered Trait
     }
-
-    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = contentColWidth, Row = advantageSubheaderRow, HeadingLevel = 3, HeadingText = "Powers" }))
-    @(await Component.InvokeAsync("AutoColumn", new AutoColumnModel { Traits = powers, Column = leftColumn, Width = contentColWidth, Row = currentRow }))
-
-    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = leftColumn, Width = contentColWidth, Row = specificPowerRow, HeadingLevel = 4, HeadingText = "Specific Powers" }))
-    @(await Component.InvokeAsync("PickerColumn", new PickerColumnModel { Traits = specificPowers, Column = leftColumn, Width = contentColWidth, Row = specificPowerRow + 1 }))
-
-    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = midColumn, Width = contentColWidth, Row = advantageSubheaderRow, HeadingLevel = 3, HeadingText = "Backgrounds" }))
-    @(await Component.InvokeAsync("PickerColumn", new PickerColumnModel { Traits = backgrounds, Column = midColumn, Width = contentColWidth, Row = currentRow }))
-
-    @(await Component.InvokeAsync("AutoHeader", new AutoHeaderModel { Column = rightColumn, Width = contentColWidth, Row = advantageSubheaderRow, HeadingLevel = 3, HeadingText = "Vital Statistics" }))
-    @(await Component.InvokeAsync("AutoGrid", new AutoGridModel { Column = rightColumn, Width = contentColWidth, Row = currentRow, ColumnCount = 2, BumperWidth = 1, Traits = vitalStats }))
-
 
 </div>

@@ -1,21 +1,43 @@
-﻿@using VampireTheEverythingSheetNoReact.Models.Component
+﻿@using Microsoft.AspNetCore.Html
+@using VampireTheEverythingSheetNoReact.Models.Component
 @using VampireTheEverythingSheetNoReact.Shared_Files
 @model PickerColumnModel
 
 @{
+    //we async as much of this as possible - we can't async the layout components, but the things that go inside them can be
+    IEnumerable<Task<IHtmlContent>> visibleTraits = from Trait trait in Model.VisibleTraits select Component.InvokeAsync("TraitRenderer", trait);
+
+    Task<IHtmlContent> traitAdderContent = Component.InvokeAsync("TraitAdder", Model.SelectableTraits);
+
+    if (Model.HeadingLevel > 0 && !string.IsNullOrEmpty(Model.HeadingText))
+    {
+        AutoHeaderModel autoHeaderModel = new AutoHeaderModel
+        {
+            Row = Model.Row,
+            Column = Model.Column,
+            Width = Model.Width,
+            HeadingLevel = Model.HeadingLevel,
+            HeadingText = Model.HeadingText
+        };
+        @(await Component.InvokeAsync("AutoHeader", autoHeaderModel))
+        Model.Height = autoHeaderModel.Height;
+    }
+    else
+    {
+        Model.Height = 0;
+    }
+
     AutoColumnModel autoColumnModel = new AutoColumnModel
     {
-        Row = Model.Row,
+        Row = Model.RowEnd, //current RowEnd is always where new stuff should start, if we're keeping Height updated
         Column = Model.Column,
         Width = Model.Width,
-        Traits = Model.VisibleTraits
+        Elements = visibleTraits
     };
-}
 
-@(await Component.InvokeAsync("AutoColumn", autoColumnModel))
+    await Component.InvokeAsync("AutoColumn", autoColumnModel);
 
-@{
-    Model.Height = autoColumnModel.Height ?? 0;
+    Model.Height += autoColumnModel.Height ?? 0;
 
     GridElementModel gridElementModel = new GridElementModel
     {
@@ -23,12 +45,10 @@
         Column = Model.Column,
         Width = Model.Width,
         Height = 1,
-        Content = Component.InvokeAsync("TraitAdder", Model.SelectableTraits)
+        Content = traitAdderContent
     };
-}
 
-@(await Component.InvokeAsync("GridElement", gridElementModel))
+    await Component.InvokeAsync("GridElement", gridElementModel);
 
-@{
     Model.Height += gridElementModel.Height;
 }

@@ -1,7 +1,31 @@
-﻿@using VampireTheEverythingSheetNoReact.Models.Component
+﻿@using Microsoft.AspNetCore.Html
+@using VampireTheEverythingSheetNoReact.Models.Component
 @using VampireTheEverythingSheetNoReact.Shared_Files
+
 @model AutoGridModel
+
 @{
+    if (Model.HeadingLevel > 0 && !string.IsNullOrEmpty(Model.HeadingText))
+    {
+        AutoHeaderModel autoHeaderModel = new AutoHeaderModel
+        {
+            Row = Model.Row,
+            Column = Model.Column,
+            Width = Model.Width,
+            HeadingLevel = Model.HeadingLevel,
+            HeadingText = Model.HeadingText
+        };
+
+        //TODO: Not working. Fix.
+        await Component.InvokeAsync(autoHeaderModel.ViewComponentName, autoHeaderModel);
+
+        Model.Height = autoHeaderModel.Height;
+    }
+    else
+    {
+        Model.Height = 0;
+    }
+
     if (Model.ColumnCount < 1)
     {
         return;
@@ -13,7 +37,6 @@
             Model.Width -
             (Model.BumperWidth * (Model.ColumnCount - 1))
         ) / Model.ColumnCount;
-
 
     //determine where each column in the grid will be
     int[] columnIndices = new int[Model.ColumnCount];
@@ -27,27 +50,29 @@
         columnIndices[x] = columnIndices[x - 1] + columnWidth + Model.BumperWidth;
     }
 
-    Trait[] traits = Model.Traits.ToArray();
+    Task<IHtmlContent>[] elements = Model.Elements.ToArray();
 
     //if we have 11 items and 3 rows, then 2 columns will have an extra item - namely the first two
-    int extras = traits.Length % Model.ColumnCount;
+    int extras = elements.Length % Model.ColumnCount;
 
     //pass back the height by reference
     Model.Height =
-        (traits.Length / Model.ColumnCount) +
+        (elements.Length / Model.ColumnCount) +
         (
             extras > 0
                 ? 1
                 : 0
         );
 
-    //we track the trait index separately because it saves both processing time and programmer headaches in this case
-    int traitIdx = 0;
+    //we track the element index separately because it saves both processing time and programmer headaches in this case
+    int elementIdx = 0;
+
+    Task<IHtmlContent>[] gridElements = new Task<IHtmlContent>[elements.Length];
 
     //actual rendering logic
     for (int colIndex = 0; colIndex < Model.ColumnCount; colIndex++)
     {
-        int colRows = (traits.Length / Model.ColumnCount) +
+        int colRows = (elements.Length / Model.ColumnCount) +
             (
                 colIndex < extras
                     ? 1
@@ -58,19 +83,20 @@
             int trueRow = rowIndex + Model.Row;
             int trueCol = columnIndices[colIndex];
             //TODO: align-self and justify-self in a class, and with sensible values
-            <text>
-                @(
-                await Component.InvokeAsync("GridElement", new GridElementModel
-                {
-                    Content = Component.InvokeAsync("TraitRenderer", traits[traitIdx]),
-                    Column = trueCol,
-                    Row = trueRow,
-                    Width = columnWidth,
-                    Height = 1
-                })
-                )
-            </text>
-            traitIdx++;
+            gridElements[elementIdx] = Component.InvokeAsync("GridElement", new GridElementModel
+            {
+                Content = elements[elementIdx],
+                Column = trueCol,
+                Row = trueRow,
+                Width = columnWidth,
+                Height = 1
+            });
+            elementIdx++;
         }
+    }
+
+    foreach (Task<IHtmlContent> gridElement in gridElements)
+    {
+        @(await gridElement)
     }
 }

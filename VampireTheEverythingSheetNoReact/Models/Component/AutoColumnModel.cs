@@ -1,8 +1,12 @@
-﻿namespace VampireTheEverythingSheetNoReact.Models.Component
+﻿using Microsoft.AspNetCore.Html;
+
+namespace VampireTheEverythingSheetNoReact.Models.Component
 {
     public class AutoColumnModel : RectangularControlModel
     {
-        public required IEnumerable<Trait> Traits { get; set; }
+        public AutoColumnModel() : base("AutoColumn") { }
+
+        public required IEnumerable<Task<IHtmlContent>> Elements { get; set; }
 
         public int HeadingLevel { get; set; } = 0;
 
