@@ -25,10 +25,17 @@ namespace VampireTheEverythingSheetNoReact.Models
 
             foreach (Trait trait in _traits.Values)
             {
-                if (trait.Name == "Name")
+                switch(trait.Name)
                 {
-                    _nameTrait = trait;
-                    break;
+                    case "Name":
+                        _nameTraitID = trait.UniqueID;
+                        break;
+                    case "Virtues":
+                        _pathVirtuesTraitID = trait.UniqueID;
+                        break;
+                    case "Path Score":
+                        _pathScoreTraitID = trait.UniqueID;
+                        break;
                 }
             }
         }
@@ -60,10 +67,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         {
             get
             {
-                return 
-                    _nameTrait == null
-                        ? ""
-                        : _nameTrait.DisplayValue;
+                return GetTraitValue(_nameTraitID, "");
             }
         }
 
@@ -164,6 +168,15 @@ namespace VampireTheEverythingSheetNoReact.Models
             return trait.Value;
         }
 
+        public T GetTraitValue<T>(int? traitID, T defaultValue)
+        {
+            if (GetTraitValue(traitID) is T t)
+            {
+                return t;
+            }
+            return defaultValue;
+        }
+
         public bool TryGetTraitValue<T>(int? traitID, out T? value)
         {
             if (GetTraitValue(traitID) is T t)
@@ -181,7 +194,9 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         private readonly Dictionary<string, int> _variables = [];
 
-        private readonly Trait? _nameTrait; //TODO: May work better as a variable
+        private readonly int? _nameTraitID;
+        private readonly int? _pathVirtuesTraitID;
+        private readonly int? _pathScoreTraitID;
 
         /// <summary>
         /// A set of reserved variables that have special behavior in the system, and therefore are hardcoded on the backend.
@@ -195,6 +210,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             "BACKGROUNDMAX",
             "PATHMAX",
             "GENERATIONMAX",
+            "RESOLVEPENALTY",
             "EFFECTIVEHUMANITY"
         ];
 
@@ -407,8 +423,26 @@ namespace VampireTheEverythingSheetNoReact.Models
                     return 10;
                 case "GENERATIONMAX":
                     return 5;
+                case "RESOLVEPENALTY":
+                    int penalty = 0;
+                    string pathVirtues = GetTraitValue(_pathVirtuesTraitID, "").ToLower();
+                    if (!pathVirtues.Contains("conscience"))
+                    {
+                        penalty--;
+                    }
+                    if (!pathVirtues.Contains("self-control"))
+                    {
+                        penalty--;
+                    }
+                    return penalty;
                 case "EFFECTIVEHUMANITY":
-                    return 10;
+                    int pathScore = GetTraitValue(_pathScoreTraitID, 0);
+                    return GetReservedVariable("RESOLVEPENALTY") switch
+                    {
+                        0 => pathScore,
+                        -1 => (int)Math.Ceiling(pathScore / 2.0),
+                        _ => (object)(pathScore > 0 ? 1 : 0),
+                    };
                 default:
                     throw new NotImplementedException();
             }

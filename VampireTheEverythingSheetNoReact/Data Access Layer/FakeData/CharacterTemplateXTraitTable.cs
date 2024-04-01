@@ -93,7 +93,14 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     "Initiative",
                     "Soak",
 
-                    "Path"
+                    "Path Name",
+                    "Path Score",
+                    "Effective Humanity",
+                    "Virtues",
+                    "Bearing",
+                    "Resolve Penalty",
+                    "Stains",
+
 
                     //TODO: Weapons, Physical Description
                 ]);

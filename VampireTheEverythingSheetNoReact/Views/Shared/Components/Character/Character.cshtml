@@ -54,9 +54,6 @@
     //The number of real columns that encompass each "content" column. In other words, the ratio between the width of the content columns and the HTML columns.
     const int contentColWidth = 11;
 
-    //The number of real columns that encompass a sub-column. Sub-columns are used to create smaller UI elements like vital statistics.
-    const int subColWidth = contentColWidth / 2;
-
     //The number of actual columns in the grid, including spacing columns and so on.
     const int realCols =
         (borderWidth * 2) +
@@ -98,6 +95,8 @@
 
     IEnumerable<Task<IHtmlContent>> vitalStats = RenderMany(character.GetTraits(TraitCategory.VitalStatistic));
 
+    IEnumerable<Task<IHtmlContent>> morality = RenderMany(character.GetTraits(TraitCategory.MoralPath));
+
     //TODO:there has to be a better way of determining currentRow than what we're doing. Maybe using model objects we can pass by reference and get back RowsUsed or something?
     //TODO: Some or all of this style may be classable
 }
@@ -106,9 +105,10 @@
 <div class="d-grid text-center" style="grid-template-columns: repeat(@(realCols), minmax(0, 1fr)) !important; grid-auto-rows: max-content;">
     
     @{
-        UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 1, HeadingText = character.GameTitle });
         UpdateRow(ref currentRow, new AutoGridModel
         {
+            HeadingLevel = 1,
+            HeadingText = character.GameTitle,
             Column = leftColumn,
             Width = mainContentColumnWidth,
             Row = currentRow,
@@ -116,6 +116,7 @@
             BumperWidth = bumperWidth,
             Elements = topTextTraits
         });
+
         UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Attributes" });
 
         UpdateMaxRow(ref currentRow,
@@ -133,8 +134,6 @@
         );
 
         UpdateRow(ref currentRow, new AutoHeaderModel { Column = leftColumn, Width = mainContentColumnWidth, Row = currentRow, HeadingLevel = 2, HeadingText = "Advantages" });
-
-        //TODO: UpdateRow and stuff from here on, fix graphical issues
 
         /*
         * The flow in this section works as such:
@@ -166,13 +165,13 @@
                 Contents =
                 [
                     //TODO: The rows on these don't actually matter. Consider making row an optional field. (Honestly we could refactor so most of the dimensions don't matter...)
-                    new AutoGridModel { Column = rightColumn, Width = contentColWidth, Row = currentRow, ColumnCount = 2, BumperWidth = 1, Elements = vitalStats, HeadingLevel = 3, HeadingText = "Vital Statistics" }
+                    new AutoGridModel { Column = rightColumn, Width = contentColWidth, Row = currentRow, ColumnCount = 2, BumperWidth = 1, Elements = vitalStats, HeadingLevel = 3, HeadingText = "Vital Statistics" },
+                    new AutoColumnModel { Column = rightColumn, Width = contentColWidth, Row = currentRow, Elements = morality, HeadingLevel = 3, HeadingText = "Morality" }
                 ]
             }
         );
 
-        //TODO: Need to account separately for Vital Statistics and Morality being in one column - or reformat the page
-        //this may involve ensuring that headers of a certain level are the same size as a rendered Trait
+        //TODO more Traits, data persistence
     }
 
 </div>

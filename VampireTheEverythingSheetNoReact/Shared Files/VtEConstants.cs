@@ -36,9 +36,22 @@
 
             /// <summary>
             /// The DerivedOption keyword indicates that one of the possible values of this Trait has a name
-            /// which varies depending on some character-wide variable.
+            /// which varies depending on some other Trait or character-wide variable.
             /// </summary>
             public const string DerivedOption = "DERIVED_OPTION";
+
+            /// <summary>
+            /// The DerivedInteger keyword indicates that the value of this Trait is determined via evaluating the 
+            /// remaining parameters of its "chunk" via reverse Polish notation. Calculations are performed using 
+            /// doubles and then rounded to the nearest integer.
+            /// </summary>
+            public const string DerivedInteger = "DERIVED_INTEGER";
+
+            /// <summary>
+            /// The DerivedInteger keyword indicates that the value of this Trait is determined by taking the value of
+            /// some other Trait or variable and "switching" it through a Dictionary. This works much like DERIVED_OPTION.
+            /// </summary>
+            public const string DerivedSwitch = "DERIVED_SWITCH";
 
             /// <summary>
             /// The MainTraitMax keyword indicates that this trait takes the maximum value of any subtrait belonging
@@ -102,26 +115,20 @@
             IntegerTrait = 2,
 
             /// <summary>
-            /// A PathTrait reflects the character's moral Path, and allows the user to select both the Path and the rating thereof.
-            /// The trait also displays certain information pertinent to the Path.
-            /// </summary>
-            PathTrait = 3, //TODO: Hierarchy of Sins?
-
-            /// <summary>
             /// A WeaponTrait represents a weapon that the character can select to display in the Weapons section.
             /// The mere presence of one of these traits does not change the appearance of the UI except to add it to the
             /// dropdown menu for weapon selection.
             /// </summary>
-            WeaponTrait = 4, //TODO: Conditional weapons like Arms of the Abyss
+            WeaponTrait = 3, //TODO: Conditional weapons like Arms of the Abyss
 
             /// <summary>
             /// A DerivedTrait represents a trait that is derived from other values, and therefore does not have a selectable
             /// or editable component.
             /// </summary>
-            DerivedTrait = 5,
+            DerivedTrait = 4,
 
-            MeritFlawTrait = 6, //TODO: Is this the same as SelectableTrait, or do we need SpecificPowerTrait, or what?
-            SelectableTrait = 7, //TODO: Implement business rules
+            MeritFlawTrait = 5, //TODO: Is this the same as SelectableTrait, or do we need SpecificPowerTrait, or what?
+            SelectableTrait = 6, //TODO: Implement business rules
         };
 
         /// <summary>
@@ -222,15 +229,17 @@
             Standard,
 
             /// <summary>
-            /// The DerivedSum derivation indicates that a Trait's value is the sum of certain numbers and/or variables.
+            /// The DerivedInteger derivation indicates that a Trait's value is the sum of certain numbers and/or variables.
             /// </summary>
-            DerivedSum,
+            DerivedInteger,
 
             /// <summary>
             /// The DerivedOptions derivation indicates that certain values of the trait should be displayed to the user differently than they are 
             /// stored on the backend, according to certain internal rules. This only affects the display value, and not the actual value.
             /// </summary>
             DerivedOptions,
+
+            DerivedSwitch,
 
             /// <summary>
             /// The MainTraitMax derivation indicates that this is a main trait that takes the value of its highest subtrait. 

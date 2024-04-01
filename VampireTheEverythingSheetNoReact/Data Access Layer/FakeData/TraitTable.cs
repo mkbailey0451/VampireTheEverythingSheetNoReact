@@ -420,7 +420,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     (int)TraitType.IntegerTrait,
                     (int)TraitCategory.Attribute,
                     (int)TraitSubCategory.Mental,
-                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX"
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}1{Utils.MiniChunkSplitter}TRAITMAX{Utils.ChunkSplitter}{VtEKeywords.IsVar}{Utils.MiniChunkSplitter}RESOLVE"
                 ],
                 #endregion
 
@@ -4542,14 +4542,68 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                 ],
                 #endregion
 
+                #region Morality
                 [
                     traitID++,
-                    "Path",
-                    (int)TraitType.PathTrait,
+                    "Path Name",
+                    (int)TraitType.DropdownTrait,
+                    (int)TraitCategory.MoralPath,
+                    (int)TraitSubCategory.None,
+                    $"{VtEKeywords.IsVar}{Utils.MiniChunkSplitter}PATHNAME{Utils.ChunkSplitter}{VtEKeywords.PossibleValues}{Utils.MiniChunkSplitter}" + 
+                        string.Join(Utils.MiniChunkSplitter, from DataRow row in PathTable.Data.Rows select (string)row["PATH_NAME"])
+                ],//TODO: Will we ever use the secondary value thing?
+                [
+                    traitID++,
+                    "Path Score",
+                    (int)TraitType.IntegerTrait,
                     (int)TraitCategory.MoralPath,
                     (int)TraitSubCategory.None,
                     $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}PATHMAX"
                 ],
+                [
+                    traitID++,
+                    "Effective Humanity",
+                    (int)TraitType.DerivedTrait,
+                    (int)TraitCategory.MoralPath,
+                    (int)TraitSubCategory.None,
+                    $"{VtEKeywords.DerivedInteger}{Utils.MiniChunkSplitter}EFFECTIVEHUMANITY"
+                ],
+                [
+                    traitID++,
+                    "Virtues",
+                    (int)TraitType.DerivedTrait,
+                    (int)TraitCategory.MoralPath,
+                    (int)TraitSubCategory.None,
+                    $"{VtEKeywords.DerivedSwitch}{Utils.MiniChunkSplitter}PATHNAME{Utils.MiniChunkSplitter}" + 
+                        string.Join(Utils.MiniChunkSplitter, from DataRow row in PathTable.Data.Rows select (string)row["PATH_NAME"] + Utils.MiniChunkSplitter + (string)row["VIRTUES"])
+                ],
+                [
+                    traitID++,
+                    "Bearing",
+                    (int)TraitType.DerivedTrait,
+                    (int)TraitCategory.MoralPath,
+                    (int)TraitSubCategory.None,
+                    $"{VtEKeywords.DerivedSwitch}{Utils.MiniChunkSplitter}PATHNAME{Utils.MiniChunkSplitter}" +
+                        string.Join(Utils.MiniChunkSplitter, from DataRow row in PathTable.Data.Rows select (string)row["PATH_NAME"] + Utils.MiniChunkSplitter + (string)row["BEARING"])
+                ],
+                [
+                    traitID++,
+                    "Resolve Penalty",
+                    (int)TraitType.DerivedTrait,
+                    (int)TraitCategory.MoralPath,
+                    (int)TraitSubCategory.None,
+                    $"{VtEKeywords.DerivedInteger}{Utils.MiniChunkSplitter}RESOLVEPENALTY"
+                ],
+                [
+                    traitID++,
+                    "Stains",
+                    (int)TraitType.IntegerTrait, //TODO: Need boxes vs dots vs both display
+                    (int)TraitCategory.MoralPath,
+                    (int)TraitSubCategory.None,
+                    $"{VtEKeywords.MinMax}{Utils.MiniChunkSplitter}0{Utils.MiniChunkSplitter}RESOLVE"//TODO
+                ],
+                #endregion
+
                 //TODO: Create a PathInfo table with the data we need to populate the other fields (Bearing etc) on the front end and handle logic on the back end
 
                 #region Vital Statistics

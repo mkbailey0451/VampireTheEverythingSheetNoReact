@@ -170,20 +170,16 @@ namespace VampireTheEverythingSheetNoReact.Models
                     case TraitValueDerivation.Standard:
                     case TraitValueDerivation.DerivedOptions: //DerivedOptions only affects display values
                         return _val;
-                    case TraitValueDerivation.DerivedSum:
-                        int sum = 0;
-                        foreach (string summand in _val as IEnumerable<string> ?? [])
+                    case TraitValueDerivation.DerivedSwitch:
+                        Dictionary<string, string> derivedSwitch = DerivedOptionsSwitches["Value"];
+                        string derivingVal = _character.GetVariable(_val as string) as string ?? "";
+                        if(derivedSwitch.TryGetValue(derivingVal, out string? derivedValue))
                         {
-                            if (_character.TryGetVariable(summand, out int intSummand))
-                            {
-                                sum += intSummand;
-                            }
-                            else
-                            {
-                                throw new Exception("Unrecognized summand: " + summand);
-                            }
+                            return derivedValue;
                         }
-                        return sum;
+                        return "";
+                    case TraitValueDerivation.DerivedInteger:
+                        return EvaluateDerived(_val);
                     case TraitValueDerivation.MainTraitMax:
                         return _character.GetMaxSubTrait(SubTraits);
                     case TraitValueDerivation.MainTraitCount:
@@ -291,31 +287,6 @@ namespace VampireTheEverythingSheetNoReact.Models
 
         //TODO: Document ALL THE THINGS
 
-        private string _auxValue = "";
-
-        /// <summary>
-        /// This property represents the "auxillary" value of certain Traits.
-        /// The semantic meaning of this is different for each Trait.
-        /// For Backgrounds, this is the Background Details field.
-        /// For Attributes and Abilities, this is the associated specialty.
-        /// For Paths, this is the name of the Path, as opposed to the numeric value of the Path score.
-        /// </summary>
-        public string AuxillaryValue
-        {
-            get
-            {
-                return _auxValue;
-            }
-            set
-            {
-                if (Type == TraitType.PathTrait && !MoralPath.AllPaths.ContainsKey(value))
-                {
-                    return;
-                }
-                _auxValue = value;
-            }
-        }
-
         #endregion
 
         #region Private members
@@ -385,6 +356,10 @@ namespace VampireTheEverythingSheetNoReact.Models
                         break;
                     case VtEKeywords.PossibleValues:
                         _possibleValues = tokens.Skip(1).ToArray(); //TODO: use
+                        if(string.IsNullOrEmpty(_val as string) && _possibleValues.Length > 0)
+                        {
+                            _val = _possibleValues[0];
+                        }
                         break;
                     case VtEKeywords.AutoHide:
                         AutoHide = true;
@@ -393,15 +368,29 @@ namespace VampireTheEverythingSheetNoReact.Models
                         _character.RegisterVariable(tokens[1], this);
                         //TODO: Probably some flags for updating the Character from the Trait, vice versa, incrememting the Trait...
                         break;
+                    case VtEKeywords.DerivedInteger:
+                        _valDerivation = TraitValueDerivation.DerivedInteger;
+                        _val = tokens.Skip(1).ToArray();
+                        break;
                     case VtEKeywords.DerivedOption:
                         _valDerivation = TraitValueDerivation.DerivedOptions;
                         DerivedOptionsLookup[tokens[1]] = tokens[2];
-                        Dictionary<string, string> derivedSwitch = [];
+                        Dictionary<string, string> derivedOptions = [];
                         for (int x = 3; x < tokens.Length - 1; x += 2)
+                        {
+                            derivedOptions[tokens[x]] = tokens[x + 1];
+                        }
+                        DerivedOptionsSwitches[tokens[1]] = derivedOptions;
+                        break;
+                    case VtEKeywords.DerivedSwitch:
+                        _valDerivation = TraitValueDerivation.DerivedSwitch;
+                        _val = tokens[1];
+                        Dictionary<string, string> derivedSwitch = [];
+                        for (int x = 2; x < tokens.Length - 1; x += 2)
                         {
                             derivedSwitch[tokens[x]] = tokens[x + 1];
                         }
-                        DerivedOptionsSwitches[tokens[1]] = derivedSwitch;
+                        DerivedOptionsSwitches["Value"] = derivedSwitch;
                         break;
                     case VtEKeywords.MainTraitMax:
                         _valDerivation = TraitValueDerivation.MainTraitMax;
@@ -429,6 +418,51 @@ namespace VampireTheEverythingSheetNoReact.Models
                         break;
                 }
             }
+        }
+
+        private int EvaluateDerived(object? val)
+        {
+            if(val is not string[] operands || operands.Length == 0)
+            {
+                throw new ArgumentNullException("Could not evaluate derived value " + (val ?? "null").ToString());
+            }
+
+            if(operands.Length == 1)
+            {
+                _character.TryGetVariable(operands[0], out int? result);
+                if(result == null)
+                {
+                    throw new ArgumentNullException("Could not evaluate variable " + (operands[0] ?? "null").ToString());
+                }
+                return (int)result;
+            }
+
+            //oh yeah, it's RPN time, I haven't done this since high school let's GO
+            Stack<string> stack = new(operands);
+
+            return (int)Math.Round(EvaluateStack(stack));
+        }
+
+        private double EvaluateStack(Stack<string> stack)
+        {
+            string val = stack.Pop().Trim();
+
+            switch(val)
+            {
+                case "+": return EvaluateStack(stack) + EvaluateStack(stack);
+                case "-": return EvaluateStack(stack) - EvaluateStack(stack);
+                case "*": return EvaluateStack(stack) * EvaluateStack(stack);
+                //TODO: These two might be in the wrong order - may have to store in variables and do from there - if we even ever use them
+                case "/": return EvaluateStack(stack) / EvaluateStack(stack);
+                case "^": return Math.Pow(EvaluateStack(stack),EvaluateStack(stack));
+            }
+
+            _character.TryGetVariable(val, out int? result);
+            if (result == null)
+            {
+                throw new ArgumentNullException("Could not evaluate variable " + (val ?? "null").ToString());
+            }
+            return (double)result;
         }
 
         #endregion

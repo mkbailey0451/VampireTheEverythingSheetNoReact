@@ -11,6 +11,10 @@ namespace VampireTheEverythingSheetNoReact.ViewComponents
     {
         public IViewComponentResult Invoke(Trait trait)
         {
+            if(trait.Visible == TraitVisibility.Hidden)
+            {
+                return View("HiddenTrait", trait);
+            }
             return trait.Type switch
             {
                 TraitType.FreeTextTrait => View("FreeTextTrait", trait),
