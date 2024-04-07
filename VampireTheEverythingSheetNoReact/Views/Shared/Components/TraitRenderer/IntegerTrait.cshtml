@@ -5,7 +5,7 @@
     //TODO: Text box size
     string controlID = "trait-integer-" + Model.TraitID;
     int minVal = Model.MinValue;
-    int val = Utils.TryGetInt(Model.Value) ?? minVal;
+    int val = Utils.TryGetInt(Model.ExpandedValue) ?? minVal;
     int maxVal = Model.MaxValue;
     //TODO: Events, prettiness
     <div class="d-flex justify-content-between">

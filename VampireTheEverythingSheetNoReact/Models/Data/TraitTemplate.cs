@@ -55,7 +55,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public string Data { get; private set; }
 
-        public object DefaultValue { get; private set; }
+        public string DefaultValue { get; private set; }
 
         public SortedSet<int> SubTraits
         {
@@ -113,7 +113,7 @@ namespace VampireTheEverythingSheetNoReact.Models
 
             Data = Utils.TryGetString(row["TRAIT_DATA"], "");
 
-            DefaultValue = GetDefaultFromDB(row["DEFAULT_VALUE"]);
+            DefaultValue = Utils.TryGetString(row["DEFAULT_VALUE"], "");
 
             _subtraits = new(
                     from idString in Utils.TryGetString(row["SUBTRAITS"], "").Split(Utils.MiniChunkSplitter)

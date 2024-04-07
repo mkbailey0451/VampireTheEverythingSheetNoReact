@@ -220,12 +220,12 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         {
             //TODO delete from in different order if we ever have to do this again - FK violations
             DataTable[] collections =
-            {
+            [
                 //FakeData.CharacterTemplateTable.Data,
                 //FakeData.CharacterTemplateXTraitTable.Data,
                 //FakeData.PathTable.Data,
-                FakeData.TraitTable.Data
-            };
+                //FakeData.TraitTable.Data
+            ];
 
             foreach(DataTable table in collections)
             {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Drawing;
 using VampireTheEverythingSheetNoReact.Data_Access_Layer;
 using VampireTheEverythingSheetNoReact.Shared_Files;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
@@ -9,7 +10,7 @@ namespace VampireTheEverythingSheetNoReact.Models
 {
     public class Character
     {
-        public Character(int uniqueID, IEnumerable<TemplateKey>? templates = null, Dictionary<int,string> traitValues = null)
+        public Character(int uniqueID, IEnumerable<TemplateKey>? templates = null, Dictionary<int,string>? traitValues = null)
         {
             UniqueID = uniqueID;
 
@@ -176,7 +177,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                 return null;
             }
 
-            return trait.Value;
+            return trait.ExpandedValue;
         }
 
         public T GetTraitValue<T>(int? traitID, T defaultValue)
@@ -226,21 +227,29 @@ namespace VampireTheEverythingSheetNoReact.Models
         ];
 
         /// <summary>
-        /// If the supplied string is numeric, returns an int representation of it.
-        /// If the supplied string is the name of a variable registered to the character, returns the current value of that variable.
-        /// Otherwise, returns null.
+        /// If the supplied object is null, returns null.
+        /// If the supplied object is an int or numeric string, returns an int.
+        /// If the supplied object is the string name of a variable registered to the character, returns the current value of that variable.
+        /// Otherwise, returns the supplied object.
         /// This method will automatically convert retrieved numeric strings to integers when retrieving them.
         /// </summary>
-        public object? GetVariable(string? variableName)
+        public object GetVariable(object input)
         {
-            if (string.IsNullOrEmpty(variableName))
+            if(input is int intVal)
             {
-                return null;
+                return intVal;
             }
 
-            if (ReservedVariables.Contains(variableName))
+            //we can't and shouldn't handle non-int, non-string objects in here, so we send them back
+            if (input is not string variableName && !Utils.TryGetString(input, out variableName))
             {
-                return GetReservedVariable(variableName);
+                return input;
+            }
+
+            //nothing to do about empty strings either
+            if (variableName == "")
+            {
+                return variableName;
             }
 
             //Since we do not accept numeric strings as variable names, we provide this automatic parsing functionality as a courtesy to calling methods.
@@ -259,30 +268,56 @@ namespace VampireTheEverythingSheetNoReact.Models
                 variableName = variableName[1..];
             }
 
-            if (!_variables.TryGetValue(variableName, out int traitID))
+            //Now we will attempt to expand the variable.
+            object variableValue;
+
+            //try to expand reserved variables first
+            if (ReservedVariables.Contains(variableName))
             {
-                return null;
+                variableValue = GetReservedVariable(variableName);
+            }
+            //then expand other variables
+            else if (_variables.TryGetValue(variableName, out int traitID))
+            {
+                variableValue = _traits[traitID].ExpandedValue;
+            }
+            //If we didn't expand a variable, we return the value as-is (and tack on the multiplier if there is one)
+            else
+            {
+                if (multiplier == -1)
+                {
+                    return "-" + variableName;
+                }
+                return variableName;
             }
 
-            //we handle the variable expansion to the greatest extent possible, but not all variables are of a straightforward type
-            object val = _traits[traitID].Value;
+            //Now that we have an expanded value, it might actually be another variable name, so we actually need to recurse.
+            //This also handles a lot of parsing-based cases, so it's good to do regardless.
+            //Note that, due to the recursion, this will fully expand our input.
+            object fullyExpandedVal = GetVariable(variableValue);
 
-            if (Utils.TryGetInt(val, out int intVal))
+            //We shouldn't need to do any kind of TryGetInt business here because of the recursion, but we do just in case
+            if(fullyExpandedVal is int intExpanded || Utils.TryGetInt(fullyExpandedVal, out intExpanded))
             {
-                return intVal * multiplier;
+                return multiplier * intExpanded;
             }
 
-            return val;
+            if(fullyExpandedVal is string strExpanded && multiplier != 1)
+            {
+                return "-" + strExpanded;
+            }
+
+            return fullyExpandedVal;
         }
 
-        public bool TryGetVariable<T>(string? variableName, out T? value)
+        public bool TryGetVariable<T>(object input, out T? value, T? defaultVal = default)
         {
-            if (GetVariable(variableName) is T t)
+            if (GetVariable(input) is T t)
             {
                 value = t;
                 return true;
             }
-            value = default;
+            value = defaultVal;
             return false;
         }
 
@@ -291,7 +326,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             return
             (
                 from traitID in subTraitIDs
-                select Utils.TryGetInt(_traits[traitID].Value) ?? int.MinValue
+                select Utils.TryGetInt(_traits[traitID].ExpandedValue) ?? int.MinValue
             ).Max();
         }
 
@@ -302,7 +337,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             //we only want to return the count of selected subtraits (or in other words, traits with a "truthy" kind of value)
             foreach (int traitID in subtraitIDs)
             {
-                object val = _traits[traitID].Value;
+                object val = _traits[traitID].ExpandedValue;
 
                 if (val is bool boolVal)
                 {
@@ -330,7 +365,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                 }
                 //TODO: I think Path will have some unique logic here, but we'll probably never use it
 
-                throw new ArgumentException("Unrecognized datatype of val for trait " + _traits[traitID].Name + ": " + _traits[traitID].Value.GetType());
+                throw new ArgumentException("Unrecognized datatype of val for trait " + _traits[traitID].Name + ": " + _traits[traitID].ExpandedValue.GetType());
             }
 
             return count;
@@ -427,7 +462,7 @@ namespace VampireTheEverythingSheetNoReact.Models
 
         private readonly SortedDictionary<int, Trait> _traits = [];
 
-        private object? GetReservedVariable(string variableName)
+        private object GetReservedVariable(string variableName)
         {
             switch (variableName)
             {

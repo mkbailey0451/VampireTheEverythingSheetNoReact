@@ -20,7 +20,11 @@ namespace VampireTheEverythingSheetNoReact.Models
             Template = trait.Template;
 
             //this may get ignored or overridden by ProcessTraitData and that's okay
-            Value = Template.DefaultValue;
+            RawValue = Template.DefaultValue;
+
+            //these will get overwritten in ProcessTraitData if needed as well
+            _minValue = -1;
+            _maxValue = -1;
 
             //it's easier to reprocess this each time, since it does things like register variables on the Character
             ProcessTraitData(Template.Data);
@@ -36,7 +40,11 @@ namespace VampireTheEverythingSheetNoReact.Models
             Template = template;
 
             //this may get ignored or overridden by ProcessTraitData and that's okay
-            Value = Template.DefaultValue;
+            RawValue = Template.DefaultValue;
+
+            //these will get overwritten in ProcessTraitData if needed as well
+            _minValue = -1;
+            _maxValue = -1;
 
             ProcessTraitData(Template.Data);
         }
@@ -78,11 +86,11 @@ namespace VampireTheEverythingSheetNoReact.Models
                 switch (Category)
                 {
                     case TraitCategory.Power:
-                        return (Value is int pwrVal && pwrVal > 0)
+                        return (ExpandedValue is int pwrVal && pwrVal > 0)
                             ? TraitVisibility.Visible
                             : TraitVisibility.Hidden;
                     case TraitCategory.SpecificPower:
-                        if(Value is bool specificVal && specificVal )
+                        if(ExpandedValue is bool specificVal && specificVal )
                         {
                             return TraitVisibility.Visible;
                         }
@@ -98,12 +106,12 @@ namespace VampireTheEverythingSheetNoReact.Models
                         }
                         return TraitVisibility.Hidden;
                     case TraitCategory.Background:
-                        return (Value is int backVal && backVal > 0)
+                        return (ExpandedValue is int backVal && backVal > 0)
                             ? TraitVisibility.Visible
                             : TraitVisibility.Selectable;
                     case TraitCategory.MeritFlaw:
                     case TraitCategory.Weapon:
-                        return (Value is bool boolVal && boolVal)
+                        return (ExpandedValue is bool boolVal && boolVal)
                             ? TraitVisibility.Visible
                             : TraitVisibility.Selectable;
                     default: return TraitVisibility.Visible;
@@ -120,7 +128,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             get
             {
                 //get the value of, well, Value as a string - in most cases, this is also the display value
-                string rawTraitVal = Utils.TryGetString(Value, "");
+                string rawTraitVal = Utils.TryGetString(ExpandedValue, "");
 
                 //TODO: If there don't end up being multiple cases in this switch, refactor it to a compound if condition
                 switch (_valDerivation)
@@ -149,42 +157,60 @@ namespace VampireTheEverythingSheetNoReact.Models
         }
 
         /// <summary>
-        /// The true backend value of the object. Be warned that setting this attribute can fail silently due to validations. To avoid this behavior, use TryAssign instead.
+        /// The variable-expanded value of the object. Be warned that setting this attribute can fail silently due to validations. To avoid this behavior, use TryAssign instead.
         /// </summary>
-        public object Value
+        public object ExpandedValue
         {
             get
             {
+                object unclippedVal;
                 switch (_valDerivation)
                 {
                     case TraitValueDerivation.Standard:
                     case TraitValueDerivation.DerivedOptions: //DerivedOptions only affects display values
-                        return _val;
+                        unclippedVal = _character.GetVariable(RawValue);
+                        break;
                     case TraitValueDerivation.DerivedSwitch:
                         Dictionary<string, string> derivedSwitch = DerivedOptionsSwitches["Value"];
-                        string derivingVal = _character.GetVariable(_val as string) as string ?? "";
+                        string derivingVal = Utils.TryGetString(_character.GetVariable(RawValue), "");
                         if(derivedSwitch.TryGetValue(derivingVal, out string? derivedValue))
                         {
-                            return derivedValue;
+                            unclippedVal = derivedValue;
                         }
-                        return "";
+                        else
+                        {
+                            unclippedVal = derivingVal;
+                        }
+                        break;
                     case TraitValueDerivation.DerivedInteger:
-                        return EvaluateDerived(_val);
+                        unclippedVal = EvaluateDerived(RawValue);
+                        break;
                     case TraitValueDerivation.MainTraitMax:
-                        return _character.GetMaxSubTrait(SubTraits);
+                        unclippedVal = _character.GetMaxSubTrait(SubTraits);
+                        break;
                     case TraitValueDerivation.MainTraitCount:
-                        return _character.CountSubTraits(SubTraits);
-                    //TODO
+                        unclippedVal = _character.CountSubTraits(SubTraits);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
-            }
-            set
-            {
-                TryAssign(value);
+                if(unclippedVal is int intVal)
+                {
+                    int min = MinValue,
+                        max = MaxValue;
+
+                    if(min != -1 && max != -1)
+                    {
+                        intVal = Math.Max(intVal, min);
+                        intVal = Math.Min(intVal, max);
+                        return intVal;
+                    }
+                }
+                return unclippedVal;
             }
         }
-        private object _val = "";
+
+        public string RawValue { get; private set; }
         private TraitValueDerivation _valDerivation = TraitValueDerivation.Standard;
 
         /// <summary>
@@ -192,30 +218,50 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public bool TryAssign(object newValue)
         {
-            //TODO: More cases, more thorough
-            if(newValue == null)
+            //Purely-derived traits don't use their own value field like normal traits do,
+            //instead deriving it from TRAIT_DATA (this does not include things like DerivedOptions or
+            //DerivedSwitch, which use their value in the derivation process)
+            switch(_valDerivation)
             {
-                return false;
+                case TraitValueDerivation.DerivedInteger:
+                case TraitValueDerivation.MainTraitCount:
+                case TraitValueDerivation.MainTraitMax:
+                    return false;
             }
 
-            int min = MinValue,
-                max = MaxValue;
+            //ironically enough, we don't need to validate all IntegerTraits this way,
+            //since such traits can have derived values - we only need to validate pure ints
+            int? intValue = Utils.TryGetInt(newValue);
 
-            if (min != -1 && max != -1)
+            if(intValue != null)
             {
-                if (!Utils.TryGetInt(newValue, out int intValue) || intValue < min || intValue > max)
+                int min = MinValue,
+                    max = MaxValue;
+
+                if (min != -1 && max != -1)
                 {
-                    return false;
+                    if (intValue < min || intValue > max)
+                    {
+                        return false;
+                    }
                 }
             }
 
-            if (_possibleValues.Length != 0 && !_possibleValues.Contains(newValue))
+            string? strValue = Utils.TryGetString(newValue);
+
+            if (strValue == null)
             {
                 return false;
             }
-            //TODO
 
-            throw new NotImplementedException();
+            if (_possibleValues.Length != 0 && !_possibleValues.Contains(strValue))
+            {
+                return false;
+            }
+
+            RawValue = strValue;
+
+            return true;
         }
 
         /// <summary>
@@ -226,10 +272,11 @@ namespace VampireTheEverythingSheetNoReact.Models
             get
             {
                 //Sadly, we can't memoize the value because these variables can change over time
-                return _character.GetVariable(_minValue) as int? ?? -1;
+                _character.TryGetVariable(_minValue, out int val, -1);
+                return val;
             }
         }
-        string? _minValue;
+        object _minValue;
 
         /// <summary>
         /// Maximum numerical value of the Trait (if applicable).
@@ -239,10 +286,11 @@ namespace VampireTheEverythingSheetNoReact.Models
             get
             {
                 //Sadly, we can't memoize the value because these variables can change over time
-                return _character.GetVariable(_maxValue) as int? ?? -1;
+                _character.TryGetVariable(_maxValue, out int val, -1);
+                return val;
             }
         }
-        string? _maxValue;
+        object _maxValue;
 
         public int? PowerLevel { get; private set; } = null; //TODO: Not sure if this is the best implementation
 
@@ -331,9 +379,9 @@ namespace VampireTheEverythingSheetNoReact.Models
                         break;
                     case VtEKeywords.PossibleValues:
                         _possibleValues = tokens.Skip(1).ToArray(); //TODO: use
-                        if(string.IsNullOrEmpty(_val as string) && _possibleValues.Length > 0)
+                        if(string.IsNullOrEmpty(RawValue) && _possibleValues.Length > 0)
                         {
-                            _val = _possibleValues[0];
+                            RawValue = _possibleValues[0];
                         }
                         break;
                     case VtEKeywords.AutoHide:
@@ -345,7 +393,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                         break;
                     case VtEKeywords.DerivedInteger:
                         _valDerivation = TraitValueDerivation.DerivedInteger;
-                        _val = tokens.Skip(1).ToArray();
+                        RawValue = string.Join(Utils.MiniChunkSplitter,tokens.Skip(1));
                         break;
                     case VtEKeywords.DerivedOption:
                         _valDerivation = TraitValueDerivation.DerivedOptions;
@@ -359,7 +407,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                         break;
                     case VtEKeywords.DerivedSwitch:
                         _valDerivation = TraitValueDerivation.DerivedSwitch;
-                        _val = tokens[1];
+                        RawValue = tokens[1];
                         Dictionary<string, string> derivedSwitch = [];
                         for (int x = 2; x < tokens.Length - 1; x += 2)
                         {
@@ -371,13 +419,13 @@ namespace VampireTheEverythingSheetNoReact.Models
                         _valDerivation = TraitValueDerivation.MainTraitMax;
                         //Most (all?) main traits will want their own name as the main trait
                         //TODO: Do the same for variables?
-                        _val = tokens.Length > 1
+                        RawValue = tokens.Length > 1
                             ? tokens[1]
                             : Name;
                         break;
                     case VtEKeywords.MainTraitCount:
                         _valDerivation = TraitValueDerivation.MainTraitCount;
-                        _val = tokens.Length > 1
+                        RawValue = tokens.Length > 1
                             ? tokens[1]
                             : Name;
                         break;
@@ -395,11 +443,13 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
 
-        private int EvaluateDerived(object? val)
+        private int EvaluateDerived(string operandString)
         {
-            if(val is not string[] operands || operands.Length == 0)
+            string[] operands = operandString.Split(Utils.MiniChunkSplitter);
+
+            if (operands.Length == 0)
             {
-                throw new ArgumentNullException("Could not evaluate derived value " + (val ?? "null").ToString());
+                throw new ArgumentNullException("Could not evaluate derived value " + operandString.ToString());
             }
 
             if(operands.Length == 1)
@@ -407,7 +457,7 @@ namespace VampireTheEverythingSheetNoReact.Models
                 _character.TryGetVariable(operands[0], out int? result);
                 if(result == null)
                 {
-                    throw new ArgumentNullException("Could not evaluate variable " + (operands[0] ?? "null").ToString());
+                    throw new ArgumentNullException("Could not evaluate variable " + operands[0].ToString());
                 }
                 return (int)result;
             }
