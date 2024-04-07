@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
 using VampireTheEverythingSheetNoReact.Data_Access_Layer;
+using VampireTheEverythingSheetNoReact.Models.DB;
 using VampireTheEverythingSheetNoReact.Shared_Files;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
@@ -54,11 +55,13 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public string Data { get; private set; }
 
-        public IEnumerable<int> SubTraits
+        public object DefaultValue { get; private set; }
+
+        public SortedSet<int> SubTraits
         {
             get
             {
-                return from traitID in _subtraits select traitID;
+                return new(_subtraits);
             }
         }
 
@@ -72,7 +75,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         private static ReadOnlyDictionary<int, TraitTemplate> GetAllTraitTemplates()
         {
             SortedDictionary<int, TraitTemplate> allTraits = [];
-            foreach (DataRow row in FakeDatabase.GetDatabase().GetTraitData())
+            foreach (DBRow row in VtEDatabaseAccessLayer.GetDatabase().GetTraitTemplateData())
             {
                 TraitTemplate template = new(row);
                 allTraits[template.UniqueID] = template;
@@ -100,7 +103,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             return new(allTraits);
         }
 
-        private TraitTemplate(DataRow row)
+        private TraitTemplate(DBRow row)
         {
             UniqueID = Utils.TryGetInt(row["TRAIT_ID"], -1);
             Name = Utils.TryGetString(row["TRAIT_NAME"], "");
@@ -110,11 +113,26 @@ namespace VampireTheEverythingSheetNoReact.Models
 
             Data = Utils.TryGetString(row["TRAIT_DATA"], "");
 
+            DefaultValue = GetDefaultFromDB(row["DEFAULT_VALUE"]);
+
             _subtraits = new(
                     from idString in Utils.TryGetString(row["SUBTRAITS"], "").Split(Utils.MiniChunkSplitter)
                     where !string.IsNullOrEmpty(idString)
                     select int.Parse(idString)
                 );
+        }
+
+        private static object GetDefaultFromDB(object defaultVal)
+        {
+            if(defaultVal is not string strVal)
+            {
+                return "";
+            }
+            if(Utils.TryGetInt(strVal, out int intVal))
+            {
+                return intVal;
+            }
+            return strVal;
         }
     }
 }

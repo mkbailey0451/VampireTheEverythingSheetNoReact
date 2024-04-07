@@ -9,13 +9,13 @@ namespace VampireTheEverythingSheetNoReact.Models
 {
     public class Character
     {
-        public Character(string uniqueID, IEnumerable<TemplateKey>? templates = null)
+        public Character(int uniqueID, IEnumerable<TemplateKey>? templates = null, Dictionary<int,string> traitValues = null)
         {
             UniqueID = uniqueID;
 
             if (templates == null || !templates.Any())
             {
-                templates = [TemplateKey.Mortal];
+                templates = [TemplateKey.Mortal]; //TODO: Factor this out
             }
 
             foreach (TemplateKey template in templates)
@@ -23,24 +23,35 @@ namespace VampireTheEverythingSheetNoReact.Models
                 AddTemplate(template);
             }
 
+            if (traitValues != null)
+            {
+                foreach(int traitID in traitValues.Keys)
+                {
+                    if(_traits.TryGetValue(traitID, out Trait? trait))
+                    {
+                        trait.TryAssign(traitValues[traitID]);
+                    }
+                }
+            }
+
             foreach (Trait trait in _traits.Values)
             {
                 switch(trait.Name)
                 {
                     case "Name":
-                        _nameTraitID = trait.UniqueID;
+                        _nameTraitID = trait.TraitID;
                         break;
                     case "Virtues":
-                        _pathVirtuesTraitID = trait.UniqueID;
+                        _pathVirtuesTraitID = trait.TraitID;
                         break;
                     case "Path Score":
-                        _pathScoreTraitID = trait.UniqueID;
+                        _pathScoreTraitID = trait.TraitID;
                         break;
                 }
             }
         }
 
-        public Character(string uniqueID, Character character) : this(uniqueID, character._templateKeys) { }
+        public Character(int uniqueID, Character character) : this(uniqueID, character._templateKeys) { }
 
         public string GameTitle
         {
@@ -334,7 +345,7 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
             if (!_variables.ContainsKey(variableName))
             {
-                _variables[variableName] = associatedTrait.UniqueID;
+                _variables[variableName] = associatedTrait.TraitID;
             }
             else
             {
@@ -342,7 +353,18 @@ namespace VampireTheEverythingSheetNoReact.Models
             }
         }
 
-        public string UniqueID { get; set; }
+        public int UniqueID { get; set; }
+
+        //TODO: We may just want to expose Traits at this point.
+        public Trait? GetTrait(int? traitID)
+        {
+            if (traitID == null || !_traits.TryGetValue((int)traitID, out Trait? trait))
+            {
+                return null;
+            }
+
+            return trait;
+        }
 
         //TODO: Get rid of ever trying to reference traits purely by name
 

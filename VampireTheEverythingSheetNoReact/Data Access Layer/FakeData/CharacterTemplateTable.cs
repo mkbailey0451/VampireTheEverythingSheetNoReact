@@ -16,10 +16,11 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
         {
             DataTable templates = new()
             {
+                TableName = "CHARACTER_TEMPLATES",
                 Columns =
                 {
-                    new DataColumn("TEMPLATE_ID", typeof(int)),
-                    new DataColumn("TEMPLATE_NAME", typeof(string)),
+                    new DataColumn("CHAR_TEMPLATE_ID", typeof(int)),
+                    new DataColumn("CHAR_TEMPLATE_NAME", typeof(string)),
                 }
             };
 

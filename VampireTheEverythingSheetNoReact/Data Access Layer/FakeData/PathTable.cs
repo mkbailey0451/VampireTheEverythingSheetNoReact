@@ -16,8 +16,10 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
         {
             DataTable pathData = new()
             {
+                TableName = "MORAL_PATHS",
                 Columns =
                 {
+                    new DataColumn("PATH_ID", typeof(int)),
                     new DataColumn("PATH_NAME", typeof(string)),
                     new DataColumn("VIRTUES", typeof(string)),
                     new DataColumn("BEARING", typeof(string)),
@@ -25,10 +27,12 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                 }
             };
 
+            int pathID = 0;
             #region Build path data
             object[][] rawPathData =
             [
                 [
+                    pathID++,
                     "Humanity",
                     "Conscience and Self-Control",
                     "Humanity",
@@ -46,6 +50,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     )
                 ],
                 [
+                    pathID++,
                     "Assamia",
                     "Conviction and Self-Control",
                     "Resolve",
@@ -63,6 +68,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     )
                 ],
                 [
+                    pathID++,
                     "The Ophidian Path",
                     "Conviction and Self-Control",
                     "Devotion",
@@ -80,6 +86,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     )
                 ],
                 [
+                    pathID++,
                     "The Path of the Archivist",
                     "Conviction and Self-Control",
                     "Sagacity",
@@ -97,6 +104,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     )
                 ],
                 [
+                    pathID++,
                     "The Path of Bones",
                     "Conviction and Self-Control",
                     "Silence",
@@ -114,6 +122,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     )
                 ],
                 [
+                    pathID++,
                     "The Path of Caine",
                     "Conviction and Instinct",
                     "Faith",
@@ -131,39 +140,257 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
                     )
                 ],
                 [//TODO
-                    "Humanity",
-                    "Conscience and Self-Control",
-                    "Humane",
+                    pathID++,
+                    "The Path of Cathari",
+                    "Conviction and Instinct",
+                    "Seduction",
                     string.Join(Utils.ChunkSplitter,
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
+                        "Exercising restraint",
+                        "Showing trust",
+                        "Failing to pass on the Curse to the passionately wicked or virtuous",
+                        "Failing to ride the wave in frenzy",
+                        "Refraining from indulgence",
+                        "Sacrificing gratification for someone else’s convenience",
+                        "Killing in Frenzy",
+                        "Failing to encourage another to vice, outright murder",
+                        "Casual murder",
+                        "Encouraging others to exercise restraint, gleeful killing"
                     )
                 ],
                 [
-                    "Humanity",
-                    "Conscience and Self-Control",
-                    "Humane",
+                    pathID++,
+                    "The Path of the Feral Heart",
+                    "Conviction and Instinct",
+                    "Menace",
                     string.Join(Utils.ChunkSplitter,
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        ""
+                        "Wearing clothing or using tools",
+                        "Hunting with means other than your own vampiric powers",
+                        "Engaging in politics",
+                        "Feeding past satiation, acting in an overly cruel manner",
+                        "Failing to ride the wave in a frenzy",
+                        "Remaining in the presence of fire or sunlight, except to kill an enemy, failing to support one’s pack or allies (if any)",
+                        "Killing in Frenzy (human or animal), failing to follow one’s instincts",
+                        "Failing to hunt when hungry, outright murder, deliberate killing of an animal",
+                        "Casual murder or slaughter",
+                        "Gleeful murder or slaughter, refusing to hunt to survive"
                     )
                 ],
+                [
+                    pathID++,
+                    "The Path of the Fox",
+                    "Conscience and Self-Control",
+                    "Trustworthiness",
+                    string.Join(Utils.ChunkSplitter,
+                        "Selfish acts, except as payment for services rendered",
+                        "Accidental injury to another",
+                        "Refusing an opportunity to enjoy oneself, except for a greater good",
+                        "Theft from the innocent, except as necessary to teach a lesson",
+                        "Frenzying, accidental violation",
+                        "Failing to take an opportunity to teach through trickery, intentional property damage",
+                        "Killing in a Frenzy, failing to aid an ally",
+                        "Outright murder, aiding an oppressor",
+                        "Casual murder",
+                        "Tricking someone with no benefit to others, gleeful murder"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Harmony",
+                    "Conscience and Instinct",
+                    "Harmony",
+                    string.Join(Utils.ChunkSplitter,
+                        "Acting in a selfish manner except when necessary to survive or aid one’s allies",
+                        "Failing to develop one’s vampiric abilities, refusing to aid the innocent when they are in danger",
+                        "Failing to learn about nature",
+                        "Theft or trespassing",
+                        "Failing to ride the wave in a frenzy",
+                        "Remaining in the presence of fire or sunlight, except to kill an enemy or aid an ally, failing to follow one’s instincts",
+                        "Killing in Frenzy (human or animal), failing to aid one’s pack or allies, feeding past satiation, deliberate and unnecessary cruelty",
+                        "Failing to hunt when hungry, outright murder, deliberate killing of an animal",
+                        "Casual murder or slaughter",
+                        "Gleeful murder or slaughter, refusing to hunt to survive"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Honorable Accord",
+                    "Conviction and Self-Control",
+                    "Devotion",
+                    string.Join(Utils.ChunkSplitter,
+                        "Failing to uphold all the precepts of your group",
+                        "Failing to show hospitality to your allies",
+                        "Associating with the dishonorable",
+                        "Failing to participate in your group’s rituals",
+                        "Disobeying your leader",
+                        "Failing to protect your allies",
+                        "Placing personal concerns over duty, killing in a frenzy",
+                        "Showing cowardice, outright murder",
+                        "Casual killing",
+                        "Breaking your word or oath; failing to honor an agreement; gleeful killing"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Indulgence",
+                    "Conviction and Instinct",
+                    "Need",
+                    string.Join(Utils.ChunkSplitter,
+                        "Showing concern for others, except in anticipation of their later usefulness",
+                        "Failing to ride the wave in a frenzy",
+                        "Refusing to explore new and interesting pleasures",
+                        "Refusing to ghoul another when the opportunity arises",
+                        "Refusing to attain wealth, fame, or power, except in the pursuit of pleasure or survival",
+                        "Inconveniencing oneself for another without a guarantee of reward",
+                        "Killing in a frenzy, refusing to exploit another for personal pleasure",
+                        "Inconveniencing oneself for another without anticipation of reward, outright murder",
+                        "Refusing to indulge in any pleasure that does not threaten one’s survival, casual killing",
+                        "Risking one’s existence, gleeful killing"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Lilith",
+                    "Conviction and Instinct",
+                    "Tribulation",
+                    string.Join(Utils.ChunkSplitter,
+                        "Feeding immediately when hungry",
+                        "Pursuing temporal wealth or power",
+                        "Not correcting the errors of others regarding Caine and Lilith",
+                        "Feeling remorse for bringing pain to someone",
+                        "Failing to participate in a Bahari ritual",
+                        "Fearing death",
+                        "Killing in a frenzy",
+                        "Outright murder, not seeking out the teachings of Lilith",
+                        "Failing to dispense nonlethal pain and anguish, casual murder",
+                        "Shunning nonlethal pain, gleeful killing"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Metamorphosis",
+                    "Conviction and Instinct",
+                    "Inhumanity",
+                    string.Join(Utils.ChunkSplitter,
+                        "Engaging in politics or any social activity, postponing feeding when hungry",
+                        "Indulging in pleasure",
+                        "Asking another for knowledge",
+                        "Sharing knowledge with another",
+                        "Failure to experiment on others when something may be gained from it",
+                        "Failing to ride out a frenzy",
+                        "Considering the needs of others, killing in a Frenzy",
+                        "Failure to experiment, even at risk to oneself, outright murder",
+                        "Neglecting to alter one’s own body, casual killing",
+                        "Exhibiting compassion for others, gleeful killing"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Night",
+                    "Conviction and Instinct",
+                    "Darkness",
+                    string.Join(Utils.ChunkSplitter,
+                        "Engaging in pleasures, except at the expense of others",
+                        "Engaging in politics",
+                        "Failing to be innovative in one’s depredations",
+                        "Asking aid of another",
+                        "Failing to ride out a Frenzy, showing compassion or sorrow",
+                        "Bowing to another Kindred’s will, failing to harm a mortal when the opportunity arises",
+                        "Killing in Frenzy, accidental killing",
+                        "Aiding or acting in the interests of another, outright murder",
+                        "Accepting another’s claim to superiority, casual killing",
+                        "Repenting one’s behavior, gleeful killing"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Path of Power and the Inner Voice",
+                    "Conviction and Instinct",
+                    "Command",
+                    string.Join(Utils.ChunkSplitter,
+                        "Denying responsibility for your actions",
+                        "Treating your underlings poorly when they have been successful",
+                        "Failing to respect your superiors",
+                        "Helping others when it is not to your advantage",
+                        "Accepting defeat",
+                        "Failing to further one’s own interests",
+                        "Submitting to the error of others, killing in Frenzy",
+                        "Not using the most effective tools for control, outright murder",
+                        "Not punishing failure, casual killing",
+                        "Turning down the opportunity for power, gleeful killing"
+                    )
+                ],
+                [
+                    pathID++,
+                    "The Rising Path",
+                    "Conscience and Self-Control",
+                    "Mentorship",
+                    string.Join(Utils.ChunkSplitter,
+                        "Selfish acts",
+                        "Injury to another, refusing to improve someone who asks",
+                        "Intentional injury to another, refusing to offer useful advice",
+                        "Theft, refusing the advice of a fellow Sculptor",
+                        "Accidental violation, refusing hospitality to a fellow Sculptor",
+                        "Experimenting recklessly on others",
+                        "Killing in a Frenzy, altering another without permission",
+                        "Outright murder, deliberately harming another with Vicissitude",
+                        "Casual violation, killing a fellow Sculptor",
+                        "Gleeful or creative violation, refusing to improve oneself"
+                    )
+                ],
+                [
+                    pathID++,
+                    "Via Angeli (The Road of the Angel)",
+                    "Conscience and Self-Control",
+                    "Angelic",
+                    string.Join(Utils.ChunkSplitter,
+                        "Acting on any sinful impulse.",
+                        "Frenzying, engaging in the pleasures of the flesh beyond the needs of survival.",
+                        "Using one’s time unwisely.",
+                        "Theft or acting out of covetousness.",
+                        "Killing innocents during a frenzy, directing the actions of another.",
+                        "Refusing to experiment on oneself when doing so may result in improvements.",
+                        "Feeding from the innocent without permission, harming the innocent, having or faking sexual intercourse.",
+                        "The murder of innocents, the permanent destruction of useful knowlege.",
+                        "Worshipping false idols or other gods, lying, blasphemy, or heresy; allowing others to believe that one is an angel (or a supernatural being other than a vampire).",
+                        "Denying the Resurrection of Jesus Christ or the doctrine of salvation; accepting worship in any form."
+                    )
+                ],
+                [
+                    pathID++,
+                    "Via Caeli (The Road of Heaven)",
+                    "Conscience and Self-Control",
+                    "Holiness",
+                    string.Join(Utils.ChunkSplitter,
+                        "Acting on any sinful impulse",
+                        "Leading a brother to stumble, frenzying, refusing to forgive a sin against you",
+                        "Bearing false witness",
+                        "Theft",
+                        "Adultery, killing innocents during a frenzy",
+                        "Blasphemy or heresy in word or deed",
+                        "Feeding from the innocent without permission, harming the innocent, rape",
+                        "The murder of innocents",
+                        "Worshiping false idols or other gods",
+                        "Denying the Resurrection of Jesus Christ or the doctrine of salvation"
+                    )
+                ],
+                [
+                    pathID++,
+                    "Via Vir-Fortis (The Road of the Avenger)",
+                    "Conscience and Self-Control",
+                    "Heroism",
+                    string.Join(Utils.ChunkSplitter,
+                        "Refusing to search nightly for villainy",
+                        "Refusing to aid an ally",
+                        "Allowing evil to occur when one can prevent it",
+                        "Stealing from the innocent",
+                        "Frenzying, allowing an ally to come to harm",
+                        "Aiding a known killer",
+                        "Killing in a frenzy, allowing a murder when one can prevent it",
+                        "Outright murder, betraying an ally",
+                        "Casual killing",
+                        "Gleeful killing"
+                    )
+                ]
             ];
             #endregion
 

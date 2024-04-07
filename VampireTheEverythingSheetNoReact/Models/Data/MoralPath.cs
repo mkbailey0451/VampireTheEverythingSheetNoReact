@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
 using VampireTheEverythingSheetNoReact.Data_Access_Layer;
+using VampireTheEverythingSheetNoReact.Models.DB;
 using VampireTheEverythingSheetNoReact.Shared_Files;
 
 namespace VampireTheEverythingSheetNoReact.Models
@@ -50,7 +51,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         private static ReadOnlyDictionary<string, MoralPath> GetAllPaths()
         {
             Dictionary<string, MoralPath> output = [];
-            foreach (DataRow row in FakeDatabase.GetDatabase().GetPathData())
+            foreach (DBRow row in VtEDatabaseAccessLayer.GetDatabase().GetMoralPathData())
             {
                 output[Utils.TryGetString(row["PATH_NAME"], "")] = new MoralPath(row);
             }
@@ -59,7 +60,7 @@ namespace VampireTheEverythingSheetNoReact.Models
 
         private readonly List<string> _hierarchyOfSins;
 
-        private MoralPath(DataRow row)
+        private MoralPath(DBRow row)
         {
             Name = Utils.TryGetString(row["PATH_NAME"], "");
             Virtues = Utils.TryGetString(row["VIRTUES"].ToString(), "");

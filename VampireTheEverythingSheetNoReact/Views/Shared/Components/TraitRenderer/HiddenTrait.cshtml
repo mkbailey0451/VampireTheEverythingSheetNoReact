@@ -1,4 +1,7 @@
 ﻿@using VampireTheEverythingSheetNoReact.Shared_Files
 @model Trait
 
-<input type="hidden" id="trait-@(Model.UniqueID)" />
+<input type="hidden"
+    id="trait-@(Model.TraitID)"
+    data-maintrait="@(Model.MainTrait == null ? "" : Model.MainTrait.ToString())"
+/>

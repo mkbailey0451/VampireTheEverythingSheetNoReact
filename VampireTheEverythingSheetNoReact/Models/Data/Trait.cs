@@ -17,18 +17,13 @@ namespace VampireTheEverythingSheetNoReact.Models
         public Trait(Character character, Trait trait)
         {
             _character = character;
-            UniqueID = trait.UniqueID;
-            Name = trait.Name;
-            Type = trait.Type;
-            Category = trait.Category;
-            SubCategory = trait.SubCategory;
-            SubTraits = new(trait.SubTraits);
+            Template = trait.Template;
 
-            _data = trait._data;
-            ProcessTraitData(_data);
+            //this may get ignored or overridden by ProcessTraitData and that's okay
+            Value = Template.DefaultValue;
 
-            //TODO
-            //Value = DefaultValue;
+            //it's easier to reprocess this each time, since it does things like register variables on the Character
+            ProcessTraitData(Template.Data);
         }
 
         /// <summary>
@@ -38,45 +33,40 @@ namespace VampireTheEverythingSheetNoReact.Models
         {
             //there are a lot of possible exceptions here, but the correct thing to do in this case is throw them anyway
             _character = character;
-            UniqueID = template.UniqueID;
-            Name = template.Name;
-            Type = template.Type;
-            Category = template.Category;
-            SubCategory = template.SubCategory;
-            SubTraits = new(template.SubTraits);
+            Template = template;
 
-            _data = template.Data;
-            ProcessTraitData(_data);
+            //this may get ignored or overridden by ProcessTraitData and that's okay
+            Value = Template.DefaultValue;
 
-            //TODO
-            //Value = DefaultValue;
+            ProcessTraitData(Template.Data);
         }
 
         /// <summary>
-        /// The trait ID of this Trait. Each different Trait has a unique ID.
+        /// The trait ID of this Trait. Each different Trait has a unique ID corresponding to its Trait Template.
+        /// (Different Characters can and will have Traits with the same ID.)
         /// </summary>
-        public int UniqueID { get; private set; }
+        public int TraitID { get { return Template.UniqueID; } }
 
         /// <summary>
         /// The name of the Trait, such as Strength, Path, or Generation. There are NOT guaranteed to be unique!
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get { return Template.Name; } }
 
         /// <summary>
         /// The type of Trait, which determines its validation rules and how it is rendered on the front end.
         /// (This could have been implemented as subclasses, but the amount of duplicated code across different subclasses was becoming unreasonable.)
         /// </summary>
-        public TraitType Type { get; private set; }
+        public TraitType Type { get { return Template.Type; } }
 
         /// <summary>
         /// The category of the Trait, which helps determine where on the page it will be rendered.
         /// </summary>
-        public TraitCategory Category { get; private set; }
+        public TraitCategory Category { get { return Template.Category; } }
 
         /// <summary>
         /// The subcategory of the Trait, which helps determine where on the page it will be rendered and what character templates can use it.
         /// </summary>
-        public TraitSubCategory SubCategory { get; private set; }
+        public TraitSubCategory SubCategory { get { return Template.SubCategory; } }
 
         /// <summary>
         /// Determines if this trait should be rendered on the UI. (Many traits, such as powers and Backgrounds, are not rendered on the UI unless specifically selected.)
@@ -202,6 +192,7 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         public bool TryAssign(object newValue)
         {
+            //TODO: More cases, more thorough
             if(newValue == null)
             {
                 return false;
@@ -253,18 +244,6 @@ namespace VampireTheEverythingSheetNoReact.Models
         }
         string? _maxValue;
 
-        /// <summary>
-        /// The default value of this Trait, or the empty string if there is no sensible default. This can always be safely passed to TryAssign or assigned to Value to "reset" the Trait.
-        /// </summary>
-        public object? DefaultValue
-        {
-            get
-            {
-                //TODO
-                return "";
-            }
-        }
-
         public int? PowerLevel { get; private set; } = null; //TODO: Not sure if this is the best implementation
 
         /// <summary>
@@ -298,7 +277,7 @@ namespace VampireTheEverythingSheetNoReact.Models
 
         public int? MainTrait { get; private set; }
 
-        public SortedSet<int> SubTraits { get; private set; }
+        public SortedSet<int> SubTraits { get { return Template.SubTraits; } }
 
         /// <summary>
         /// Every key in this Dictionary is the "dummy" name of an option (stored in PossibleValues) whose actual value changes based on the 
@@ -318,6 +297,8 @@ namespace VampireTheEverythingSheetNoReact.Models
         /// </summary>
         private Dictionary<string, Dictionary<string, string>> DerivedOptionsSwitches { get; set; } = [];
 
+        private TraitTemplate Template { get; set; }
+
         /// <summary>
         /// Parses the TRAIT_DATA field on a given row into more friendly tokens.
         /// </summary>
@@ -333,12 +314,6 @@ namespace VampireTheEverythingSheetNoReact.Models
                 yield return bigToken.Split(Utils.MiniChunkSplitter);
             }
         }
-
-        /// <summary>
-        /// It's easier to reprocess this every time (to ensure variables get properly registered and so on) than to try to sensibly copy all the data structures
-        /// created by ProcessTraitData.
-        /// </summary>
-        private readonly string _data;
 
         /// <summary>
         /// Parses the TRAIT_DATA field on a given row and sets up the Trait accordingly.

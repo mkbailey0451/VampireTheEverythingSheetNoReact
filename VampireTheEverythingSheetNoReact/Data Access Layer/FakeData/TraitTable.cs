@@ -65,11 +65,12 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData
         {
             DataTable traitTable = new()
             {
+                TableName = "TRAIT_TEMPLATES",
                 Columns =
                 {
                     new DataColumn("TRAIT_ID", typeof(int)),
                     new DataColumn("TRAIT_NAME", typeof(string)),
-                    new DataColumn("TRAIT_TYPE", typeof(string)),
+                    new DataColumn("TRAIT_TYPE", typeof(int)),
                     new DataColumn("TRAIT_CATEGORY", typeof(int)),
                     new DataColumn("TRAIT_SUBCATEGORY", typeof(int)),
                     new DataColumn("TRAIT_DATA", typeof(string)),

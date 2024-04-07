@@ -1,7 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.Data;
+using System.Xml;
 using VampireTheEverythingSheetNoReact.Data_Access_Layer.FakeData;
 using VampireTheEverythingSheetNoReact.Models;
+using VampireTheEverythingSheetNoReact.Models.DB;
 using VampireTheEverythingSheetNoReact.Shared_Files;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
@@ -15,7 +18,7 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
     /// fake database layer with hardcoded values is provided. An interface has been created to allow for its easy replacement
     /// in the case that such is desirable.
     /// </summary>
-    public class FakeDatabase : IDatabaseAccessLayer
+    public class FakeDatabase : DatabaseAccessLayer
     {
         #region Public members
 
@@ -23,37 +26,67 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         /// Returns the singleton instance of this database.
         /// </summary>
         /// <returns></returns>
-        public static IDatabaseAccessLayer GetDatabase()
+        public static new DatabaseAccessLayer GetDatabase()
         {
             return _db;
         }
 
-        public IEnumerable<DataRow> GetTraitData()
+        public override Character GetCharacterData(int uniqueID)
         {
-            //Technically, we should do a deep copy here (and elsewhere in this class) to avoid mutability concerns, but this *is* a fake database anyway
-            return from DataRow row in TraitTable.Data.Rows select row;
+            string path = Path.Combine(CharacterSavePath, "char" + uniqueID + ".txt");
+            if(!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            if(!File.Exists(path))
+            {
+                File.WriteAllText(path, JsonConvert.SerializeObject(new Character(uniqueID)));
+            }
+
+            return JsonConvert.DeserializeObject<Character>(File.ReadAllText(path)) 
+                ?? throw new Exception("Character file " + path + " could not be parsed.");
         }
 
-        public IEnumerable<DataRow> GetCharacterTemplateData()
+        public override void SaveCharacterData(Character character)
         {
-            return from DataRow row in CharacterTemplateTable.Data.Rows select row;
+            string path = Path.Combine(CharacterSavePath, character.UniqueID + ".txt");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            File.WriteAllText(path, JsonConvert.SerializeObject(character));
+        }
+
+        public override IEnumerable<DBRow> GetTraitTemplateData()
+        {
+            //Technically, we should do a deep copy here (and elsewhere in this class) to avoid mutability concerns, but this *is* a fake database anyway
+            return from DataRow row in TraitTable.Data.Rows select new DBRow(row);
+        }
+
+        public override IEnumerable<DBRow> GetCharacterTemplateData()
+        {
+            return from DataRow row in CharacterTemplateTable.Data.Rows select new DBRow(row);
         }
 
         //TODO might need some renaming/redoing of this interface
-        public IEnumerable<DataRow> GetCharacterTemplateXTraitData()
+        public override IEnumerable<DBRow> GetCharacterTemplateXTraitData()
         {
-            return from DataRow row in CharacterTemplateXTraitTable.Data.Rows select row;
+            return from DataRow row in CharacterTemplateXTraitTable.Data.Rows select new DBRow(row);
         }
 
         /// <summary>
         /// Returns a DataTable representing the moral Paths a character may follow.
         /// </summary>
-        public IEnumerable<DataRow> GetPathData()
+        public override IEnumerable<DBRow> GetMoralPathData()
         {
-            return from DataRow row in PathTable.Data.Rows select row;
+            return from DataRow row in PathTable.Data.Rows select new DBRow(row);
         }
 
-        public ReadOnlyDictionary<string, SortedSet<int>> GetTraitIDsByName()
+        public override ReadOnlyDictionary<string, SortedSet<int>> GetTraitIDsByName()
         {
             return TraitTable.TraitIDsByName;
         }
@@ -76,6 +109,8 @@ namespace VampireTheEverythingSheetNoReact.Data_Access_Layer
         /// Since this database is a singleton, we naturally want its constructor to be private.
         /// </summary>
         private FakeDatabase() { }
+
+        private const string CharacterSavePath = "CharacterSaves";
 
         #endregion
     }

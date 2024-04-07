@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
 using VampireTheEverythingSheetNoReact.Data_Access_Layer;
+using VampireTheEverythingSheetNoReact.Models.DB;
 using static VampireTheEverythingSheetNoReact.Shared_Files.VtEConstants;
 
 namespace VampireTheEverythingSheetNoReact.Models
@@ -42,15 +43,15 @@ namespace VampireTheEverythingSheetNoReact.Models
 
         static CharacterTemplate()
         {
-            _db = FakeDatabase.GetDatabase();
+            _db = VtEDatabaseAccessLayer.GetDatabase();
             AllCharacterTemplates = InitAllCharacterTemplates();
         }
 
-        private static readonly IDatabaseAccessLayer _db;
+        private static readonly DatabaseAccessLayer _db;
 
         private static ReadOnlyDictionary<TemplateKey, CharacterTemplate> InitAllCharacterTemplates()
         {
-            IEnumerable<DataRow> templateTable = _db.GetCharacterTemplateData();
+            IEnumerable<DBRow> templateTable = _db.GetCharacterTemplateData();
 
             if (!templateTable.Any())
             {
@@ -60,17 +61,17 @@ namespace VampireTheEverythingSheetNoReact.Models
             Dictionary<TemplateKey, CharacterTemplate> templates = new(templateTable.Count());
 
             //in real life, grabbing the whole tables at once would save us a lot of queries, so we'll do it that way here too
-            IEnumerable<DataRow> template_x_trait = _db.GetCharacterTemplateXTraitData();
+            IEnumerable<DBRow> template_x_trait = _db.GetCharacterTemplateXTraitData();
 
-            foreach (DataRow templateInfo in templateTable)
+            foreach (DBRow templateInfo in templateTable)
             {
-                TemplateKey templateKey = (TemplateKey)templateInfo["TEMPLATE_ID"];
-                string templateName = (string)templateInfo["TEMPLATE_NAME"];
+                TemplateKey templateKey = (TemplateKey)templateInfo["CHAR_TEMPLATE_ID"];
+                string templateName = (string)templateInfo["CHAR_TEMPLATE_NAME"];
                 templates[templateKey] = new(
                         templateKey,
                         templateName,
-                        from DataRow row in template_x_trait
-                        where (int)row["TEMPLATE_ID"] == (int)templateInfo["TEMPLATE_ID"]
+                        from DBRow row in template_x_trait
+                        where (int)row["CHAR_TEMPLATE_ID"] == (int)templateInfo["CHAR_TEMPLATE_ID"]
                         select (int)row["TRAIT_ID"]
                     );
             }

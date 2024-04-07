@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using VampireTheEverythingSheetNoReact.Data_Access_Layer;
 using VampireTheEverythingSheetNoReact.Models;
 
 namespace VampireTheEverythingSheetNoReact.Controllers
@@ -14,18 +15,38 @@ namespace VampireTheEverythingSheetNoReact.Controllers
             _logger = logger;
         }
 
+        private static readonly DatabaseAccessLayer _db = DatabaseAccessLayer.GetDatabase();
+
         public IActionResult Index()
         {
-            //TODO: display the character sheet in its present state
-            string? savedData = "";
-                //SessionExtensions.GetString(HttpContext.Session, "CharacterData");
+            //TODO: Session saving
 
-            ViewData["CharacterModel"] =
-                string.IsNullOrEmpty(savedData)
-                    ? new("testChar")
-                    : JsonConvert.DeserializeObject<Character>(savedData);
+            ViewData["CharacterModel"] = _db.GetCharacterData(0);
 
             return View();
+        }
+
+        [HttpPost]
+        public string UpdateTrait(int characterID, int traitID, object value)
+        {
+            Character character = _db.GetCharacterData(characterID);
+
+            if (character == null)
+            {
+                Response.StatusCode = 404;
+                return "";
+            }
+
+            Trait? trait = character.GetTrait(traitID);
+
+            if(trait == null || !trait.TryAssign(value))
+            {
+                Response.StatusCode = 400;
+                return "";
+            }
+
+            //TODO
+            return "";
         }
 
         public IActionResult Privacy()
