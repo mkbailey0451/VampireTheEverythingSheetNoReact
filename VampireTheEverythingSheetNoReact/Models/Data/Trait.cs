@@ -219,11 +219,11 @@ namespace VampireTheEverythingSheetNoReact.Models
         public bool TryAssign(object newValue)
         {
             //Purely-derived traits don't use their own value field like normal traits do,
-            //instead deriving it from TRAIT_DATA (this does not include things like DerivedOptions or
-            //DerivedSwitch, which use their value in the derivation process)
+            //instead deriving it from TRAIT_DATA
             switch(_valDerivation)
             {
                 case TraitValueDerivation.DerivedInteger:
+                case TraitValueDerivation.DerivedSwitch:
                 case TraitValueDerivation.MainTraitCount:
                 case TraitValueDerivation.MainTraitMax:
                     return false;
